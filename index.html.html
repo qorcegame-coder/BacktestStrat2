@@ -1,0 +1,2912 @@
+<!DOCTYPE html>
+<!-- saved from url=(0057)file:///C:/Users/Trent/Desktop/backtest-dashboard-v6.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backtest Dashboard v2</title>
+<link href="./BacktestResult2_files/css2" rel="stylesheet">
+<style>
+:root{--bg:#060a12;--card:#0c1322;--card2:#0f172a;--border:#162033;--text:#f1f5f9;--sub:#94a3b8;--muted:#64748b;--dim:#475569;--green:#10b981;--red:#ef4444;--blue:#3b82f6;--amber:#f59e0b;--purple:#a855f7;--cyan:#06b6d4;--mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:3px}
+
+#upload{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px;padding:40px}
+#upload h1{font-family:var(--mono);font-size:20px;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#upload p{color:var(--muted);font-size:12px;text-align:center;max-width:380px;line-height:1.6}
+.dz{width:440px;max-width:90vw;padding:40px 30px;border:2px dashed #1e293b;border-radius:16px;text-align:center;cursor:pointer;background:var(--card);transition:all .3s}.dz:hover{border-color:var(--green)}
+.dz-icon{font-size:36px;opacity:.3;margin-bottom:10px}.dz-lbl{font-family:var(--mono);font-size:11px;color:var(--sub);font-weight:700}
+
+#dash{display:none;height:100vh;overflow:hidden;flex-direction:column}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 20px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0}
+.htl{font-family:var(--mono);font-size:13px;font-weight:900;letter-spacing:2px}.hbdg{font-size:8px;background:#1e293b;color:var(--sub);padding:2px 6px;border-radius:3px;font-family:var(--mono);font-weight:700;margin-left:6px}
+.hinfo{font-size:10px;color:var(--muted)}
+
+.tabbar{display:flex;padding:0 20px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0}
+.tab{padding:8px 14px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}.tab.active{color:var(--green);border-bottom-color:var(--green)}.tab:hover:not(.active){color:var(--sub)}
+
+.panel{display:none;overflow-y:auto;flex:1}.panel.active{display:block}
+.pad{padding:16px 20px}
+
+/* Summary cards */
+.sg{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;border-top:3px solid transparent}
+.sc-green{border-top-color:var(--green)}.sc-red{border-top-color:var(--red)}.sc-blue{border-top-color:var(--blue)}.sc-amber{border-top-color:var(--amber)}.sc-cyan{border-top-color:var(--cyan)}.sc-purple{border-top-color:var(--purple)}
+.sc-lbl{font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px;font-weight:700}.sc-val{font-family:var(--mono);font-size:20px;font-weight:900;margin:4px 0}.sc-sub{font-size:9px;color:var(--muted);font-family:var(--mono)}
+.trophy{text-align:center;padding:16px 0 8px;font-size:14px;font-weight:800;color:var(--green)}
+
+/* Chart */
+.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px}
+.chart-title{font-size:10px;font-weight:700;color:var(--sub);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:6px}
+.chart-title .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+canvas{width:100%!important}
+
+/* Quarter table */
+.tbl{width:100%;border-collapse:collapse;font-size:10px}
+.tbl th{text-align:left;padding:6px 8px;font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:700;position:sticky;top:0;background:var(--card)}
+.tbl td{padding:6px 8px;border-bottom:1px solid #0e1525;font-family:var(--mono);font-size:10px}
+.tbl tr:hover{background:#0e1525}
+.tbl .sell{color:var(--red)}.tbl .buy{color:var(--green)}.tbl .hold{color:var(--sub)}
+
+/* Trade cards */
+.tc{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:4px;font-size:10px}
+.tc-buy{border-left:3px solid var(--green)}.tc-sell{border-left:3px solid var(--red)}
+.tc-tk{font-family:var(--mono);font-weight:900;font-size:12px;width:50px}
+.tc-dt{color:var(--muted);width:80px;font-family:var(--mono)}.tc-pr{font-family:var(--mono);width:70px}
+.tc-pnl{font-family:var(--mono);font-weight:700;width:60px}.tc-rsn{color:var(--sub);flex:1;font-size:9px}
+.tc-act{font-weight:800;font-size:9px;width:35px}
+
+/* Holdings */
+.hc{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.hc-tk{font-family:var(--mono);font-weight:900;font-size:14px;width:60px}
+.hc-bar{flex:1;height:20px;background:#1e293b;border-radius:4px;overflow:hidden;position:relative}
+.hc-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-family:var(--mono);font-size:9px;font-weight:700;color:#fff;min-width:30px}
+.hc-info{text-align:right;width:120px}.hc-ret{font-family:var(--mono);font-weight:800;font-size:14px}.hc-pnl{font-family:var(--mono);font-size:9px;color:var(--sub)}
+.hc-from{font-size:8px;color:var(--dim);width:80px;text-align:center}
+
+/* Sell stats */
+.ss{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.ssb{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center}
+.ssb-l{font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;font-weight:700}.ssb-v{font-family:var(--mono);font-size:16px;font-weight:900;margin-top:3px}
+
+.sname{font-size:12px;font-weight:800;color:var(--sub);margin:14px 0 6px;display:flex;align-items:center;gap:6px}
+.filt{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.fb{padding:3px 10px;font-size:10px;font-weight:700;color:var(--sub);background:var(--card2);border:1px solid var(--border);border-radius:5px;cursor:pointer}.fb.active{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* Monte Carlo */
+.mc-ctrl{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.mc-ctrl label{font-size:9px;color:var(--sub);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+.mc-ctrl select,.mc-ctrl input{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:5px;font-family:var(--mono);font-size:10px}
+.mc-btn{padding:5px 16px;background:var(--green);color:#fff;border:none;border-radius:5px;font-family:var(--mono);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1px}.mc-btn:hover{opacity:.85}
+.mc-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.mc-stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.mc-stat-l{font-size:7px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.mc-stat-v{font-family:var(--mono);font-size:18px;font-weight:900;margin:3px 0}
+.mc-stat-s{font-size:8px;color:var(--muted);font-family:var(--mono)}
+.mc-pct{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.mc-pct-box{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center}
+.mc-dist{display:flex;gap:1px;align-items:flex-end;height:100px;margin-top:8px}
+
+@media(max-width:900px){.sg{grid-template-columns:repeat(3,1fr)}.ss{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.sg{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="upload" style="display: none;">
+<h1>BACKTEST v2</h1>
+<p>Upload <strong>backtest_earnings_quality_full.json</strong> from Colab.<br>Or drag &amp; drop the JSON file.</p>
+<div class="dz" id="dz" onclick="document.getElementById(&#39;fi&#39;).click()" style=""><div class="dz-icon">📊</div><div class="dz-lbl">Drop JSON here</div></div>
+<input type="file" id="fi" accept=".json,.csv" style="display:none">
+</div>
+
+<div id="dash" style="display: flex;">
+<div class="hdr"><div><span class="htl">BACKTEST</span><span class="hbdg">v2</span></div><div class="hinfo" id="hinfo">Pure Earnings Quality (SPY) | Top 10 by Earn Score | Sell &lt; B | 2015-01-02 to 2026-02-17</div></div>
+<div class="tabbar">
+<div class="tab active" data-tab="overview">📊 Overview</div>
+<div class="tab" data-tab="quarters">📅 Quarters</div>
+<div class="tab" data-tab="holdings">💼 Holdings</div>
+<div class="tab" data-tab="trades">📋 All Trades</div>
+<div class="tab" data-tab="mc">🎲 Monte Carlo</div>
+</div>
+
+<div class="panel pad active" id="p-overview"><div class="trophy">🏆 Strategy BEAT SPY by +827.3%<br><span style="font-size:11px;color:var(--muted)">$100,000 → $1,227,621 (+1127.6%) vs SPY +300.3% over 11.1 years</span></div><div class="sg" style="grid-template-columns:repeat(7,1fr)">
+<div class="sc sc-green"><div class="sc-lbl">Total Return</div><div class="sc-val" style="color:var(--green)">+1127.6%</div><div class="sc-sub">$100,000 → $1,227,621<br>SPY: +300.3%</div></div>
+<div class="sc sc-green"><div class="sc-lbl">Annualized</div><div class="sc-val" style="color:var(--green)">+25.3%</div><div class="sc-sub">Over 11.1 years<br>SPY: +13.3%</div></div>
+<div class="sc sc-red"><div class="sc-lbl">Max Drawdown</div><div class="sc-val" style="color:var(--red)">-35.7%</div><div class="sc-sub">Worst peak-to-trough<br>SPY: -33.7%</div></div>
+<div class="sc sc-amber"><div class="sc-lbl">Sharpe Ratio</div><div class="sc-val" style="color:var(--amber)">1.03</div><div class="sc-sub">Risk-adjusted<br>SPY: 0.79</div></div>
+<div class="sc sc-purple"><div class="sc-lbl">Sortino Ratio</div><div class="sc-val" style="color:var(--purple)">1.32</div><div class="sc-sub">Downside risk-adj<br>SPY: 0.97</div></div>
+<div class="sc sc-cyan"><div class="sc-lbl">Final Value</div><div class="sc-val" style="color:var(--cyan)">$1,227,621</div><div class="sc-sub">From $100,000</div></div>
+<div class="sc sc-purple"><div class="sc-lbl">Alpha vs SPY</div><div class="sc-val" style="color:var(--green)">+827.3%</div><div class="sc-sub">141 buys, 131 sells<br>Win rate: 54%</div></div>
+</div><div class="chart-wrap"><div class="chart-title"><span class="dot" style="background:var(--green)"></span>Equity Curve — Strategy vs SPY</div><canvas id="eqChart" height="707" style="display: block; box-sizing: border-box; height: 566px; width: 1461px;" width="1827"></canvas></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div class="chart-wrap"><div class="chart-title"><span class="dot" style="background:var(--red)"></span>Drawdowns</div><canvas id="ddChart" height="522" width="887" style="display: block; box-sizing: border-box; height: 417px; width: 710px;"></canvas></div>
+<div class="chart-wrap"><div class="chart-title"><span class="dot" style="background:var(--amber)"></span>Strategy vs Benchmark — Cumulative %</div><canvas id="cumChart" height="522" width="887" style="display: block; box-sizing: border-box; height: 417px; width: 710px;"></canvas></div>
+</div></div>
+<div class="panel pad" id="p-quarters"><div class="sname">📅 Quarter-by-Quarter (45 quarters)</div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Quarter</th><th>Value</th><th>Held</th><th>Tiers</th><th>Sold</th><th>Bought</th><th>Sold Detail</th><th>Bought Detail</th></tr></thead><tbody><tr>
+<td style="font-weight:700">Q1 2015</td>
+<td style="color:var(--green)">$100,000</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--green)">10</td>
+<td><span class="hold">-</span></td>
+<td><span class="buy">FTNT</span> <span class="buy">VRTX</span> <span class="buy">XEL</span> <span class="buy">CTAS</span> <span class="buy">AMAT</span> <span class="buy">AXON</span> <span class="buy">TTWO</span> <span class="buy">EXC</span> <span class="buy">MAR</span> <span class="buy">CPRT</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2015</td>
+<td style="color:var(--green)">$97,262</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">4</td>
+<td style="color:var(--green)">4</td>
+<td><span class="sell">VRTX(-5%)</span> <span class="sell">AMAT(-10%)</span> <span class="sell">TTWO(-12%)</span> <span class="sell">EXC(-12%)</span></td>
+<td><span class="buy">KDP</span> <span class="buy">ALNY</span> <span class="buy">PANW</span> <span class="buy">COST</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2015</td>
+<td style="color:var(--green)">$103,592</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">4</td>
+<td style="color:var(--green)">4</td>
+<td><span class="sell">XEL(-8%)</span> <span class="sell">MAR(-3%)</span> <span class="sell">ALNY(+12%)</span> <span class="sell">COST(-9%)</span></td>
+<td><span class="buy">EA</span> <span class="buy">ORLY</span> <span class="buy">SBUX</span> <span class="buy">META</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2015</td>
+<td style="color:var(--green)">$101,775</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">3</td>
+<td style="color:var(--green)">3</td>
+<td><span class="sell">CTAS(+9%)</span> <span class="sell">AXON(-16%)</span> <span class="sell">CPRT(-9%)</span></td>
+<td><span class="buy">TRI</span> <span class="buy">VRSK</span> <span class="buy">ADBE</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2016</td>
+<td style="color:var(--green)">$100,317</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">6</td>
+<td style="color:var(--green)">6</td>
+<td><span class="sell">FTNT(-2%)</span> <span class="sell">PANW(+21%)</span> <span class="sell">EA(-3%)</span> <span class="sell">ORLY(+7%)</span> <span class="sell">TRI(-7%)</span> <span class="sell">VRSK(-4%)</span></td>
+<td><span class="buy">ISRG</span> <span class="buy">ROST</span> <span class="buy">AMZN</span> <span class="buy">GOOG</span> <span class="buy">NVDA</span> <span class="buy">GOOGL</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2016</td>
+<td style="color:var(--green)">$105,096</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--dim)">0</td>
+<td><span class="hold">-</span></td>
+<td><span class="hold">-</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2016</td>
+<td style="color:var(--green)">$109,027</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">5</td>
+<td style="color:var(--green)">5</td>
+<td><span class="sell">SBUX(+7%)</span> <span class="sell">ADBE(+14%)</span> <span class="sell">ROST(+4%)</span> <span class="sell">GOOG(-6%)</span> <span class="sell">GOOGL(-7%)</span></td>
+<td><span class="buy">IDXX</span> <span class="buy">AEP</span> <span class="buy">EXC</span> <span class="buy">CMCSA</span> <span class="buy">INTU</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2016</td>
+<td style="color:var(--green)">$119,103</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span></td>
+<td style="color:var(--red)">4</td>
+<td style="color:var(--green)">4</td>
+<td><span class="sell">KDP(+20%)</span> <span class="sell">AEP(-9%)</span> <span class="sell">EXC(-9%)</span> <span class="sell">INTU(-2%)</span></td>
+<td><span class="buy">CPRT</span> <span class="buy">TTWO</span> <span class="buy">MELI</span> <span class="buy">CSCO</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2017</td>
+<td style="color:var(--green)">$125,605</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">4</td>
+<td style="color:var(--green)">4</td>
+<td><span class="sell">META(+35%)</span> <span class="sell">ISRG(+17%)</span> <span class="sell">AMZN(+18%)</span> <span class="sell">MELI(-13%)</span></td>
+<td><span class="buy">AMD</span> <span class="buy">CTAS</span> <span class="buy">MPWR</span> <span class="buy">PAYX</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2017</td>
+<td style="color:var(--green)">$140,564</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">1</td>
+<td style="color:var(--green)">1</td>
+<td><span class="sell">PAYX(-4%)</span></td>
+<td><span class="buy">SHOP</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2017</td>
+<td style="color:var(--green)">$154,002</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">3</td>
+<td style="color:var(--green)">3</td>
+<td><span class="sell">CMCSA(+20%)</span> <span class="sell">CSCO(+1%)</span> <span class="sell">AMD(+6%)</span></td>
+<td><span class="buy">ODFL</span> <span class="buy">ROP</span> <span class="buy">LIN</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2017</td>
+<td style="color:var(--green)">$184,085</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--dim)">0</td>
+<td><span class="hold">-</span></td>
+<td><span class="hold">-</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2018</td>
+<td style="color:var(--green)">$200,450</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--dim)">0</td>
+<td><span class="hold">-</span></td>
+<td><span class="hold">-</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2018</td>
+<td style="color:var(--green)">$211,849</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">3</td>
+<td style="color:var(--green)">3</td>
+<td><span class="sell">TTWO(+112%)</span> <span class="sell">MPWR(+34%)</span> <span class="sell">LIN(+8%)</span></td>
+<td><span class="buy">AXON</span> <span class="buy">VRSK</span> <span class="buy">INTU</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2018</td>
+<td style="color:var(--green)">$245,122</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">1</td>
+<td style="color:var(--green)">1</td>
+<td><span class="sell">ROP(+19%)</span></td>
+<td><span class="buy">AMZN</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2018</td>
+<td style="color:var(--green)">$271,823</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">1</td>
+<td style="color:var(--green)">1</td>
+<td><span class="sell">SHOP(+136%)</span></td>
+<td><span class="buy">ADBE</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2019</td>
+<td style="color:var(--green)">$190,543</td>
+<td>9</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">9</td>
+<td style="color:var(--green)">8</td>
+<td><span class="sell">NVDA(+328%)</span> <span class="sell">IDXX(+96%)</span> <span class="sell">CPRT(+77%)</span> <span class="sell">CTAS(+47%)</span> <span class="sell">ODFL(+28%)</span> <span class="sell">VRSK(+7%)</span> <span class="sell">INTU(+15%)</span> <span class="sell">AMZN(-10%)</span> <span class="sell">ADBE(-19%)</span></td>
+<td><span class="buy">TEAM</span> <span class="buy">KDP</span> <span class="buy">TRI</span> <span class="buy">CCEP</span> <span class="buy">WDAY</span> <span class="buy">AMD</span> <span class="buy">SBUX</span> <span class="buy">AEP</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2019</td>
+<td style="color:var(--green)">$229,064</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--green)">1</td>
+<td><span class="hold">-</span></td>
+<td><span class="buy">ORLY</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2019</td>
+<td style="color:var(--green)">$256,381</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--dim)">0</td>
+<td><span class="hold">-</span></td>
+<td><span class="hold">-</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2019</td>
+<td style="color:var(--green)">$244,001</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">5</td>
+<td style="color:var(--green)">5</td>
+<td><span class="sell">AXON(+37%)</span> <span class="sell">TEAM(+40%)</span> <span class="sell">KDP(+9%)</span> <span class="sell">WDAY(+6%)</span> <span class="sell">AMD(+53%)</span></td>
+<td><span class="buy">XEL</span> <span class="buy">PEP</span> <span class="buy">CPRT</span> <span class="buy">AMAT</span> <span class="buy">KLAC</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2020</td>
+<td style="color:var(--green)">$259,758</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">1</td>
+<td style="color:var(--green)">1</td>
+<td><span class="sell">CCEP(+16%)</span></td>
+<td><span class="buy">AAPL</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2020</td>
+<td style="color:var(--green)">$204,609</td>
+<td>6</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">10</td>
+<td style="color:var(--green)">6</td>
+<td><span class="sell">TRI(+42%)</span> <span class="sell">SBUX(-0%)</span> <span class="sell">AEP(+6%)</span> <span class="sell">ORLY(-27%)</span> <span class="sell">XEL(-9%)</span> <span class="sell">PEP(-13%)</span> <span class="sell">CPRT(-19%)</span> <span class="sell">AMAT(-13%)</span> <span class="sell">KLAC(-16%)</span> <span class="sell">AAPL(-20%)</span></td>
+<td><span class="buy">REGN</span> <span class="buy">TSLA</span> <span class="buy">DXCM</span> <span class="buy">ZS</span> <span class="buy">NFLX</span> <span class="buy">TMUS</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2020</td>
+<td style="color:var(--green)">$317,904</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--green)">4</td>
+<td><span class="hold">-</span></td>
+<td><span class="buy">SHOP</span> <span class="buy">NVDA</span> <span class="buy">MSFT</span> <span class="buy">EA</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2020</td>
+<td style="color:var(--green)">$418,120</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--dim)">0</td>
+<td><span class="hold">-</span></td>
+<td><span class="hold">-</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2021</td>
+<td style="color:var(--green)">$533,325</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">2</td>
+<td style="color:var(--green)">2</td>
+<td><span class="sell">REGN(-3%)</span> <span class="sell">DXCM(+40%)</span></td>
+<td><span class="buy">LRCX</span> <span class="buy">ASML</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2021</td>
+<td style="color:var(--green)">$522,570</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">2</td>
+<td style="color:var(--green)">2</td>
+<td><span class="sell">TSLA(+587%)</span> <span class="sell">NFLX(+48%)</span></td>
+<td><span class="buy">PAYX</span> <span class="buy">GOOG</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2021</td>
+<td style="color:var(--green)">$592,398</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--dim)">0</td>
+<td><span class="hold">-</span></td>
+<td><span class="hold">-</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2021</td>
+<td style="color:var(--green)">$633,162</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">2</td>
+<td style="color:var(--green)">2</td>
+<td><span class="sell">TMUS(+49%)</span> <span class="sell">SHOP(+33%)</span></td>
+<td><span class="buy">FANG</span> <span class="buy">PANW</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2022</td>
+<td style="color:var(--green)">$717,910</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--dim)">0</td>
+<td><span class="hold">-</span></td>
+<td><span class="hold">-</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2022</td>
+<td style="color:var(--green)">$677,131</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">5</td>
+<td style="color:var(--green)">5</td>
+<td><span class="sell">ZS(+297%)</span> <span class="sell">NVDA(+181%)</span> <span class="sell">EA(-7%)</span> <span class="sell">LRCX(+11%)</span> <span class="sell">ASML(+34%)</span></td>
+<td><span class="buy">EXC</span> <span class="buy">AEP</span> <span class="buy">BKR</span> <span class="buy">VRTX</span> <span class="buy">KHC</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2022</td>
+<td style="color:var(--green)">$588,882</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">6</td>
+<td style="color:var(--green)">6</td>
+<td><span class="sell">MSFT(+29%)</span> <span class="sell">PAYX(+21%)</span> <span class="sell">GOOG(+2%)</span> <span class="sell">FANG(+27%)</span> <span class="sell">PANW(+5%)</span> <span class="sell">BKR(-20%)</span></td>
+<td><span class="buy">MNST</span> <span class="buy">PEP</span> <span class="buy">TMUS</span> <span class="buy">XEL</span> <span class="buy">AMGN</span> <span class="buy">PDD</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2022</td>
+<td style="color:var(--green)">$559,330</td>
+<td>9</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">8</td>
+<td style="color:var(--green)">7</td>
+<td><span class="sell">EXC(-18%)</span> <span class="sell">AEP(-12%)</span> <span class="sell">KHC(-13%)</span> <span class="sell">MNST(-6%)</span> <span class="sell">PEP(-2%)</span> <span class="sell">XEL(-9%)</span> <span class="sell">AMGN(-5%)</span> <span class="sell">PDD(-3%)</span></td>
+<td><span class="buy">ORLY</span> <span class="buy">REGN</span> <span class="buy">ADP</span> <span class="buy">CTAS</span> <span class="buy">FANG</span> <span class="buy">ZS</span> <span class="buy">CDNS</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2023</td>
+<td style="color:var(--green)">$552,365</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">8</td>
+<td style="color:var(--green)">9</td>
+<td><span class="sell">VRTX(+8%)</span> <span class="sell">TMUS(+2%)</span> <span class="sell">REGN(-2%)</span> <span class="sell">ADP(+3%)</span> <span class="sell">CTAS(+12%)</span> <span class="sell">FANG(+3%)</span> <span class="sell">ZS(-35%)</span> <span class="sell">CDNS(-6%)</span></td>
+<td><span class="buy">KHC</span> <span class="buy">TRI</span> <span class="buy">XEL</span> <span class="buy">WMT</span> <span class="buy">PDD</span> <span class="buy">SBUX</span> <span class="buy">AXON</span> <span class="buy">ALNY</span> <span class="buy">CCEP</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2023</td>
+<td style="color:var(--green)">$572,527</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">2</td>
+<td style="color:var(--green)">2</td>
+<td><span class="sell">PDD(-12%)</span> <span class="sell">ALNY(-14%)</span></td>
+<td><span class="buy">CPRT</span> <span class="buy">BKNG</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2023</td>
+<td style="color:var(--green)">$582,244</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">3</td>
+<td style="color:var(--green)">3</td>
+<td><span class="sell">KHC(-10%)</span> <span class="sell">XEL(-9%)</span> <span class="sell">AXON(+16%)</span></td>
+<td><span class="buy">AMAT</span> <span class="buy">NFLX</span> <span class="buy">MCHP</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2023</td>
+<td style="color:var(--green)">$556,473</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">5</td>
+<td style="color:var(--green)">5</td>
+<td><span class="sell">ORLY(+25%)</span> <span class="sell">TRI(+7%)</span> <span class="sell">SBUX(-8%)</span> <span class="sell">NFLX(-14%)</span> <span class="sell">MCHP(-13%)</span></td>
+<td><span class="buy">SNPS</span> <span class="buy">META</span> <span class="buy">COST</span> <span class="buy">CMCSA</span> <span class="buy">ADBE</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2024</td>
+<td style="color:var(--green)">$605,739</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--dim)">0</td>
+<td style="color:var(--dim)">0</td>
+<td><span class="hold">-</span></td>
+<td><span class="hold">-</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2024</td>
+<td style="color:var(--green)">$682,079</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">3</td>
+<td style="color:var(--green)">3</td>
+<td><span class="sell">BKNG(+34%)</span> <span class="sell">CMCSA(-4%)</span> <span class="sell">ADBE(-4%)</span></td>
+<td><span class="buy">AMZN</span> <span class="buy">MSFT</span> <span class="buy">LRCX</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2024</td>
+<td style="color:var(--green)">$729,255</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span></td>
+<td style="color:var(--red)">1</td>
+<td style="color:var(--green)">1</td>
+<td><span class="sell">CPRT(+41%)</span></td>
+<td><span class="buy">WDC</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2024</td>
+<td style="color:var(--green)">$704,057</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">5</td>
+<td style="color:var(--green)">5</td>
+<td><span class="sell">AMAT(+37%)</span> <span class="sell">SNPS(+7%)</span> <span class="sell">AMZN(+2%)</span> <span class="sell">LRCX(-18%)</span> <span class="sell">WDC(-13%)</span></td>
+<td><span class="buy">APP</span> <span class="buy">ORLY</span> <span class="buy">PAYX</span> <span class="buy">XEL</span> <span class="buy">ADP</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2025</td>
+<td style="color:var(--green)">$818,933</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">2</td>
+<td style="color:var(--green)">2</td>
+<td><span class="sell">CCEP(+49%)</span> <span class="sell">MSFT(-1%)</span></td>
+<td><span class="buy">AMZN</span> <span class="buy">DASH</span></td>
+</tr><tr>
+<td style="font-weight:700">Q2 2025</td>
+<td style="color:var(--green)">$817,265</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">3</td>
+<td style="color:var(--green)">3</td>
+<td><span class="sell">META(+92%)</span> <span class="sell">AMZN(-13%)</span> <span class="sell">DASH(+7%)</span></td>
+<td><span class="buy">VRSK</span> <span class="buy">FER</span> <span class="buy">CCEP</span></td>
+</tr><tr>
+<td style="font-weight:700">Q3 2025</td>
+<td style="color:var(--green)">$872,681</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">3</td>
+<td style="color:var(--green)">3</td>
+<td><span class="sell">COST(+78%)</span> <span class="sell">PAYX(+7%)</span> <span class="sell">XEL(+8%)</span></td>
+<td><span class="buy">TRI</span> <span class="buy">GILD</span> <span class="buy">FAST</span></td>
+</tr><tr>
+<td style="font-weight:700">Q4 2025</td>
+<td style="color:var(--green)">$1,028,640</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">3</td>
+<td style="color:var(--green)">3</td>
+<td><span class="sell">ADP(+6%)</span> <span class="sell">VRSK(-16%)</span> <span class="sell">TRI(-24%)</span></td>
+<td><span class="buy">WDC</span> <span class="buy">STX</span> <span class="buy">INSM</span></td>
+</tr><tr>
+<td style="font-weight:700">Q1 2026</td>
+<td style="color:var(--green)">$1,044,151</td>
+<td>10</td>
+<td><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--green);font-weight:800">A</span><span style="color:var(--blue);font-weight:800">B</span></td>
+<td style="color:var(--red)">4</td>
+<td style="color:var(--green)">4</td>
+<td><span class="sell">APP(+373%)</span> <span class="sell">ORLY(+17%)</span> <span class="sell">CCEP(+4%)</span> <span class="sell">FAST(-5%)</span></td>
+<td><span class="buy">MU</span> <span class="buy">EA</span> <span class="buy">ROST</span> <span class="buy">ASML</span></td>
+</tr></tbody></table></div></div>
+<div class="panel pad" id="p-holdings"><div class="sname">📊 Sell Performance</div><div class="ss">
+<div class="ssb"><div class="ssb-l">Win Rate</div><div class="ssb-v" style="color:var(--green)">54%</div></div>
+<div class="ssb"><div class="ssb-l">Avg Win</div><div class="ssb-v" style="color:var(--green)">+49.4%</div></div>
+<div class="ssb"><div class="ssb-l">Avg Loss</div><div class="ssb-v" style="color:var(--red)">-10.2%</div></div>
+<div class="ssb"><div class="ssb-l">Best / Worst</div><div class="ssb-v"><span style="color:var(--green)">+587%</span> <span style="color:var(--dim)">/</span> <span style="color:var(--red)">-35%</span></div></div>
+</div><div class="sname">💼 Current Holdings (10)</div><div class="hc">
+<div class="hc-tk">WMT</div>
+<div class="hc-from">from 2023-01-03<br>@ $46.15</div>
+<div class="hc-bar"><div class="hc-fill" style="width:100%;background:#10b981">+179.2%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:var(--green)">+179.2%</div><div class="hc-pnl">$91,135</div></div>
+</div><div class="hc">
+<div class="hc-tk">WDC</div>
+<div class="hc-from">from 2025-10-01<br>@ $130.49</div>
+<div class="hc-bar"><div class="hc-fill" style="width:65.68080357142858%;background:#10b981">+117.7%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:var(--green)">+117.7%</div><div class="hc-pnl">$71,587</div></div>
+</div><div class="hc">
+<div class="hc-tk">FER</div>
+<div class="hc-from">from 2025-04-01<br>@ $44.50</div>
+<div class="hc-bar"><div class="hc-fill" style="width:35.379464285714285%;background:#10b981">+63.4%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:var(--green)">+63.4%</div><div class="hc-pnl">$48,775</div></div>
+</div><div class="hc">
+<div class="hc-tk">STX</div>
+<div class="hc-from">from 2025-10-01<br>@ $256.17</div>
+<div class="hc-bar"><div class="hc-fill" style="width:34.82142857142858%;background:#10b981">+62.4%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:var(--green)">+62.4%</div><div class="hc-pnl">$37,865</div></div>
+</div><div class="hc">
+<div class="hc-tk">GILD</div>
+<div class="hc-from">from 2025-07-01<br>@ $110.23</div>
+<div class="hc-bar"><div class="hc-fill" style="width:22.823660714285715%;background:#10b981">+40.9%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:var(--green)">+40.9%</div><div class="hc-pnl">$29,456</div></div>
+</div><div class="hc">
+<div class="hc-tk">MU</div>
+<div class="hc-from">from 2026-01-02<br>@ $315.42</div>
+<div class="hc-bar"><div class="hc-fill" style="width:14.899553571428573%;background:#10b981">+26.7%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:var(--green)">+26.7%</div><div class="hc-pnl">$31,719</div></div>
+</div><div class="hc">
+<div class="hc-tk">ASML</div>
+<div class="hc-from">from 2026-01-02<br>@ $1162.25</div>
+<div class="hc-bar"><div class="hc-fill" style="width:12.388392857142858%;background:#10b981">+22.2%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:var(--green)">+22.2%</div><div class="hc-pnl">$26,268</div></div>
+</div><div class="hc">
+<div class="hc-tk">ROST</div>
+<div class="hc-from">from 2026-01-02<br>@ $182.74</div>
+<div class="hc-bar"><div class="hc-fill" style="width:4.743303571428572%;background:#10b981">+8.5%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:var(--green)">+8.5%</div><div class="hc-pnl">$10,040</div></div>
+</div><div class="hc">
+<div class="hc-tk">INSM</div>
+<div class="hc-from">from 2025-10-01<br>@ $147.28</div>
+<div class="hc-bar"><div class="hc-fill" style="width:1.2276785714285716%;background:#10b981">+2.2%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:var(--green)">+2.2%</div><div class="hc-pnl">$1,338</div></div>
+</div><div class="hc">
+<div class="hc-tk">EA</div>
+<div class="hc-from">from 2026-01-02<br>@ $204.41</div>
+<div class="hc-bar"><div class="hc-fill" style="width:1.3392857142857144%;background:#ef4444">-2.4%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:var(--red)">-2.4%</div><div class="hc-pnl">-$2,830</div></div>
+</div></div>
+<div class="panel pad" id="p-trades"><div class="sname">📋 All Trades (272)</div><div class="filt"><div class="fb active" data-f="all">All (272)</div><div class="fb " data-f="buy">Buys (141)</div><div class="fb " data-f="sell">Sells (131)</div></div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">FTNT</div>
+<div class="tc-dt">2015-01-02</div>
+<div class="tc-pr">$6.16</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(93) beat:75% con:4 vol:20</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">VRTX</div>
+<div class="tc-dt">2015-01-02</div>
+<div class="tc-pr">$123.07</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(87) beat:88% con:6 vol:33</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">XEL</div>
+<div class="tc-dt">2015-01-02</div>
+<div class="tc-pr">$25.54</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(87) beat:75% con:4 vol:19</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CTAS</div>
+<div class="tc-dt">2015-01-02</div>
+<div class="tc-pr">$17.49</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(86) beat:88% con:6 vol:22</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AMAT</div>
+<div class="tc-dt">2015-01-02</div>
+<div class="tc-pr">$21.76</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(82) beat:75% con:4 vol:28</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AXON</div>
+<div class="tc-dt">2015-01-02</div>
+<div class="tc-pr">$26.51</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(79) beat:75% con:4 vol:50</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">TTWO</div>
+<div class="tc-dt">2015-01-02</div>
+<div class="tc-pr">$28.10</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(79) beat:88% con:4 vol:39</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">EXC</div>
+<div class="tc-dt">2015-01-02</div>
+<div class="tc-pr">$18.12</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(78) beat:62% con:2 vol:25</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">MAR</div>
+<div class="tc-dt">2015-01-02</div>
+<div class="tc-pr">$69.80</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(78) beat:75% con:0 vol:20</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CPRT</div>
+<div class="tc-dt">2015-01-02</div>
+<div class="tc-pr">$4.57</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(78) beat:75% con:4 vol:18</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">VRTX</div>
+<div class="tc-dt">2015-04-01</div>
+<div class="tc-pr">$116.43</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-5.4%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AMAT</div>
+<div class="tc-dt">2015-04-01</div>
+<div class="tc-pr">$19.60</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-9.9%</span></div>
+<div class="tc-rsn">Earn dropped: D(28)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">TTWO</div>
+<div class="tc-dt">2015-04-01</div>
+<div class="tc-pr">$24.82</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-11.7%</span></div>
+<div class="tc-rsn">Earn dropped: D(29)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">EXC</div>
+<div class="tc-dt">2015-04-01</div>
+<div class="tc-pr">$15.99</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-11.8%</span></div>
+<div class="tc-rsn">Earn dropped: D(26)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">KDP</div>
+<div class="tc-dt">2015-04-01</div>
+<div class="tc-pr">$9.83</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(90) beat:88% con:4 vol:18</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ALNY</div>
+<div class="tc-dt">2015-04-01</div>
+<div class="tc-pr">$105.26</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(77) beat:75% con:3 vol:54</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">PANW</div>
+<div class="tc-dt">2015-04-01</div>
+<div class="tc-pr">$23.59</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(76) beat:75% con:0 vol:28</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">COST</div>
+<div class="tc-dt">2015-04-01</div>
+<div class="tc-pr">$125.23</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(73) beat:75% con:0 vol:18</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">XEL</div>
+<div class="tc-dt">2015-07-01</div>
+<div class="tc-pr">$23.43</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-8.3%</span></div>
+<div class="tc-rsn">Earn dropped: C(40)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">MAR</div>
+<div class="tc-dt">2015-07-01</div>
+<div class="tc-pr">$67.70</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-3.0%</span></div>
+<div class="tc-rsn">Earn dropped: D(31)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ALNY</div>
+<div class="tc-dt">2015-07-01</div>
+<div class="tc-pr">$117.57</div>
+<div class="tc-pnl"><span style="color:var(--green)">+11.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(47)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">COST</div>
+<div class="tc-dt">2015-07-01</div>
+<div class="tc-pr">$114.08</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-8.9%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">EA</div>
+<div class="tc-dt">2015-07-01</div>
+<div class="tc-pr">$66.12</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(97) beat:88% con:3 vol:21</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ORLY</div>
+<div class="tc-dt">2015-07-01</div>
+<div class="tc-pr">$15.40</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(91) beat:88% con:6 vol:19</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">SBUX</div>
+<div class="tc-dt">2015-07-01</div>
+<div class="tc-pr">$43.24</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(88) beat:100% con:10 vol:18</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">META</div>
+<div class="tc-dt">2015-07-01</div>
+<div class="tc-pr">$86.31</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(85) beat:75% con:3 vol:22</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CTAS</div>
+<div class="tc-dt">2015-10-01</div>
+<div class="tc-pr">$19.06</div>
+<div class="tc-pnl"><span style="color:var(--green)">+9.0%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AXON</div>
+<div class="tc-dt">2015-10-01</div>
+<div class="tc-pr">$22.23</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-16.1%</span></div>
+<div class="tc-rsn">Earn dropped: C(39)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CPRT</div>
+<div class="tc-dt">2015-10-01</div>
+<div class="tc-pr">$4.18</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-8.5%</span></div>
+<div class="tc-rsn">Earn dropped: C(39)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">TRI</div>
+<div class="tc-dt">2015-10-01</div>
+<div class="tc-pr">$32.49</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(70) beat:62% con:2 vol:24</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">VRSK</div>
+<div class="tc-dt">2015-10-01</div>
+<div class="tc-pr">$74.70</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(68) beat:62% con:2 vol:29</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ADBE</div>
+<div class="tc-dt">2015-10-01</div>
+<div class="tc-pr">$83.75</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(67) beat:75% con:2 vol:28</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">FTNT</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$6.05</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-1.9%</span></div>
+<div class="tc-rsn">Earn dropped: E(20)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">PANW</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$28.59</div>
+<div class="tc-pnl"><span style="color:var(--green)">+21.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(39)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">EA</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$64.27</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-2.8%</span></div>
+<div class="tc-rsn">Earn dropped: D(35)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ORLY</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$16.41</div>
+<div class="tc-pnl"><span style="color:var(--green)">+6.5%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">TRI</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$30.16</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-7.2%</span></div>
+<div class="tc-rsn">Earn dropped: D(27)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">VRSK</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$71.97</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-3.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(45)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ISRG</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$60.82</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(74) beat:62% con:4 vol:20</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ROST</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$49.28</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(74) beat:75% con:4 vol:34</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AMZN</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$31.85</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(67) beat:62% con:0 vol:30</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">GOOG</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$36.82</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(63) beat:50% con:0 vol:25</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">NVDA</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$0.79</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(61) beat:62% con:0 vol:37</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">GOOGL</div>
+<div class="tc-dt">2016-01-04</div>
+<div class="tc-pr">$37.69</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(58) beat:50% con:0 vol:23</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">SBUX</div>
+<div class="tc-dt">2016-07-01</div>
+<div class="tc-pr">$46.31</div>
+<div class="tc-pnl"><span style="color:var(--green)">+7.1%</span></div>
+<div class="tc-rsn">Earn dropped: D(34)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ADBE</div>
+<div class="tc-dt">2016-07-01</div>
+<div class="tc-pr">$95.32</div>
+<div class="tc-pnl"><span style="color:var(--green)">+13.8%</span></div>
+<div class="tc-rsn">Earn dropped: C(46)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ROST</div>
+<div class="tc-dt">2016-07-01</div>
+<div class="tc-pr">$51.32</div>
+<div class="tc-pnl"><span style="color:var(--green)">+4.1%</span></div>
+<div class="tc-rsn">Earn dropped: C(45)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">GOOG</div>
+<div class="tc-dt">2016-07-01</div>
+<div class="tc-pr">$34.70</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-5.8%</span></div>
+<div class="tc-rsn">Earn dropped: C(46)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">GOOGL</div>
+<div class="tc-dt">2016-07-01</div>
+<div class="tc-pr">$35.25</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-6.5%</span></div>
+<div class="tc-rsn">Earn dropped: C(45)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">IDXX</div>
+<div class="tc-dt">2016-07-01</div>
+<div class="tc-pr">$93.07</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(90) beat:88% con:6 vol:21</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AEP</div>
+<div class="tc-dt">2016-07-01</div>
+<div class="tc-pr">$49.74</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(86) beat:88% con:3 vol:16</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">EXC</div>
+<div class="tc-dt">2016-07-01</div>
+<div class="tc-pr">$18.60</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(77) beat:75% con:2 vol:18</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CMCSA</div>
+<div class="tc-dt">2016-07-01</div>
+<div class="tc-pr">$24.18</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(75) beat:62% con:3 vol:14</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">INTU</div>
+<div class="tc-dt">2016-07-01</div>
+<div class="tc-pr">$103.89</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(75) beat:62% con:3 vol:20</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">KDP</div>
+<div class="tc-dt">2016-10-03</div>
+<div class="tc-pr">$11.77</div>
+<div class="tc-pnl"><span style="color:var(--green)">+19.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(37)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AEP</div>
+<div class="tc-dt">2016-10-03</div>
+<div class="tc-pr">$45.42</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-8.7%</span></div>
+<div class="tc-rsn">Earn dropped: D(32)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">EXC</div>
+<div class="tc-dt">2016-10-03</div>
+<div class="tc-pr">$16.89</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-9.2%</span></div>
+<div class="tc-rsn">Earn dropped: D(30)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">INTU</div>
+<div class="tc-dt">2016-10-03</div>
+<div class="tc-pr">$101.61</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-2.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CPRT</div>
+<div class="tc-dt">2016-10-03</div>
+<div class="tc-pr">$6.73</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(92) beat:88% con:4 vol:17</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">TTWO</div>
+<div class="tc-dt">2016-10-03</div>
+<div class="tc-pr">$45.16</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(89) beat:75% con:4 vol:22</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">MELI</div>
+<div class="tc-dt">2016-10-03</div>
+<div class="tc-pr">$185.59</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(84) beat:100% con:9 vol:37</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CSCO</div>
+<div class="tc-dt">2016-10-03</div>
+<div class="tc-pr">$23.82</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(84) beat:75% con:4 vol:12</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">META</div>
+<div class="tc-dt">2017-01-03</div>
+<div class="tc-pr">$116.05</div>
+<div class="tc-pnl"><span style="color:var(--green)">+34.5%</span></div>
+<div class="tc-rsn">Earn dropped: C(45)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ISRG</div>
+<div class="tc-dt">2017-01-03</div>
+<div class="tc-pr">$71.31</div>
+<div class="tc-pnl"><span style="color:var(--green)">+17.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(40)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AMZN</div>
+<div class="tc-dt">2017-01-03</div>
+<div class="tc-pr">$37.68</div>
+<div class="tc-pnl"><span style="color:var(--green)">+18.3%</span></div>
+<div class="tc-rsn">Earn dropped: C(46)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">MELI</div>
+<div class="tc-dt">2017-01-03</div>
+<div class="tc-pr">$160.65</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-13.4%</span></div>
+<div class="tc-rsn">Earn dropped: C(46)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AMD</div>
+<div class="tc-dt">2017-01-03</div>
+<div class="tc-pr">$11.43</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(90) beat:88% con:4 vol:62</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CTAS</div>
+<div class="tc-dt">2017-01-03</div>
+<div class="tc-pr">$26.56</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(87) beat:75% con:3 vol:14</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">MPWR</div>
+<div class="tc-dt">2017-01-03</div>
+<div class="tc-pr">$77.70</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(87) beat:88% con:3 vol:24</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">PAYX</div>
+<div class="tc-dt">2017-01-03</div>
+<div class="tc-pr">$46.18</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(84) beat:75% con:3 vol:14</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">PAYX</div>
+<div class="tc-dt">2017-04-03</div>
+<div class="tc-pr">$44.53</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-3.6%</span></div>
+<div class="tc-rsn">Earn dropped: D(32)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">SHOP</div>
+<div class="tc-dt">2017-04-03</div>
+<div class="tc-pr">$6.92</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(93) beat:88% con:6 vol:31</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CMCSA</div>
+<div class="tc-dt">2017-07-03</div>
+<div class="tc-pr">$28.89</div>
+<div class="tc-pnl"><span style="color:var(--green)">+19.5%</span></div>
+<div class="tc-rsn">Earn dropped: C(48)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CSCO</div>
+<div class="tc-dt">2017-07-03</div>
+<div class="tc-pr">$24.10</div>
+<div class="tc-pnl"><span style="color:var(--green)">+1.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(46)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AMD</div>
+<div class="tc-dt">2017-07-03</div>
+<div class="tc-pr">$12.15</div>
+<div class="tc-pnl"><span style="color:var(--green)">+6.3%</span></div>
+<div class="tc-rsn">Earn dropped: C(45)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ODFL</div>
+<div class="tc-dt">2017-07-03</div>
+<div class="tc-pr">$31.09</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(93) beat:75% con:4 vol:20</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ROP</div>
+<div class="tc-dt">2017-07-03</div>
+<div class="tc-pr">$220.82</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(89) beat:88% con:4 vol:12</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">LIN</div>
+<div class="tc-dt">2017-07-03</div>
+<div class="tc-pr">$117.01</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(84) beat:88% con:7 vol:15</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">TTWO</div>
+<div class="tc-dt">2018-04-02</div>
+<div class="tc-pr">$95.92</div>
+<div class="tc-pnl"><span style="color:var(--green)">+112.4%</span></div>
+<div class="tc-rsn">Earn dropped: D(34)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">MPWR</div>
+<div class="tc-dt">2018-04-02</div>
+<div class="tc-pr">$104.05</div>
+<div class="tc-pnl"><span style="color:var(--green)">+33.9%</span></div>
+<div class="tc-rsn">Earn dropped: D(24)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">LIN</div>
+<div class="tc-dt">2018-04-02</div>
+<div class="tc-pr">$125.99</div>
+<div class="tc-pnl"><span style="color:var(--green)">+7.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(36)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AXON</div>
+<div class="tc-dt">2018-04-02</div>
+<div class="tc-pr">$39.48</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(80) beat:88% con:3 vol:65</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">VRSK</div>
+<div class="tc-dt">2018-04-02</div>
+<div class="tc-pr">$97.09</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(69) beat:75% con:0 vol:19</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">INTU</div>
+<div class="tc-dt">2018-04-02</div>
+<div class="tc-pr">$160.78</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(68) beat:75% con:0 vol:26</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ROP</div>
+<div class="tc-dt">2018-07-02</div>
+<div class="tc-pr">$262.55</div>
+<div class="tc-pnl"><span style="color:var(--green)">+18.9%</span></div>
+<div class="tc-rsn">Earn dropped: C(42)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AMZN</div>
+<div class="tc-dt">2018-07-02</div>
+<div class="tc-pr">$85.69</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(96) beat:75% con:4 vol:23</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">SHOP</div>
+<div class="tc-dt">2018-10-01</div>
+<div class="tc-pr">$16.34</div>
+<div class="tc-pnl"><span style="color:var(--green)">+136.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(48)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ADBE</div>
+<div class="tc-dt">2018-10-01</div>
+<div class="tc-pr">$275.49</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(96) beat:88% con:4 vol:24</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">NVDA</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$3.38</div>
+<div class="tc-pnl"><span style="color:var(--green)">+327.5%</span></div>
+<div class="tc-rsn">Earn dropped: D(25)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">IDXX</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$182.46</div>
+<div class="tc-pnl"><span style="color:var(--green)">+96.0%</span></div>
+<div class="tc-rsn">Earn dropped: E(18)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CPRT</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$11.92</div>
+<div class="tc-pnl"><span style="color:var(--green)">+77.1%</span></div>
+<div class="tc-rsn">Earn dropped: E(22)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CTAS</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$39.11</div>
+<div class="tc-pnl"><span style="color:var(--green)">+47.3%</span></div>
+<div class="tc-rsn">Earn dropped: D(27)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ODFL</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$39.85</div>
+<div class="tc-pnl"><span style="color:var(--green)">+28.2%</span></div>
+<div class="tc-rsn">Earn dropped: E(15)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">VRSK</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$103.84</div>
+<div class="tc-pnl"><span style="color:var(--green)">+7.0%</span></div>
+<div class="tc-rsn">Earn dropped: D(34)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">INTU</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$185.23</div>
+<div class="tc-pnl"><span style="color:var(--green)">+15.2%</span></div>
+<div class="tc-rsn">Earn dropped: D(30)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AMZN</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$76.96</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-10.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(36)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ADBE</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$224.57</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-18.5%</span></div>
+<div class="tc-rsn">Earn dropped: D(25)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">TEAM</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$89.03</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(70) beat:75% con:3 vol:64</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">KDP</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$21.25</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(63) beat:62% con:0 vol:28</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">TRI</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$41.98</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(59) beat:75% con:0 vol:22</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CCEP</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$36.78</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(57) beat:75% con:0 vol:18</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">WDAY</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$159.74</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(56) beat:50% con:1 vol:60</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AMD</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$18.83</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(54) beat:75% con:1 vol:87</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">SBUX</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$54.92</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(54) beat:62% con:0 vol:30</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AEP</div>
+<div class="tc-dt">2019-01-02</div>
+<div class="tc-pr">$56.53</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(48) beat:62% con:0 vol:21</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ORLY</div>
+<div class="tc-dt">2019-04-01</div>
+<div class="tc-pr">$26.10</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(94) beat:75% con:4 vol:22</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AXON</div>
+<div class="tc-dt">2019-10-01</div>
+<div class="tc-pr">$54.22</div>
+<div class="tc-pnl"><span style="color:var(--green)">+37.3%</span></div>
+<div class="tc-rsn">Earn dropped: E(20)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">TEAM</div>
+<div class="tc-dt">2019-10-01</div>
+<div class="tc-pr">$124.27</div>
+<div class="tc-pnl"><span style="color:var(--green)">+39.6%</span></div>
+<div class="tc-rsn">Earn dropped: D(31)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">KDP</div>
+<div class="tc-dt">2019-10-01</div>
+<div class="tc-pr">$23.10</div>
+<div class="tc-pnl"><span style="color:var(--green)">+8.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(37)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">WDAY</div>
+<div class="tc-dt">2019-10-01</div>
+<div class="tc-pr">$168.74</div>
+<div class="tc-pnl"><span style="color:var(--green)">+5.6%</span></div>
+<div class="tc-rsn">Earn dropped: E(19)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AMD</div>
+<div class="tc-dt">2019-10-01</div>
+<div class="tc-pr">$28.76</div>
+<div class="tc-pnl"><span style="color:var(--green)">+52.7%</span></div>
+<div class="tc-rsn">Earn dropped: D(30)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">XEL</div>
+<div class="tc-dt">2019-10-01</div>
+<div class="tc-pr">$53.65</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(89) beat:100% con:10 vol:14</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">PEP</div>
+<div class="tc-dt">2019-10-01</div>
+<div class="tc-pr">$113.61</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(80) beat:75% con:3 vol:16</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CPRT</div>
+<div class="tc-dt">2019-10-01</div>
+<div class="tc-pr">$19.88</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(75) beat:75% con:0 vol:22</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AMAT</div>
+<div class="tc-dt">2019-10-01</div>
+<div class="tc-pr">$47.10</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(73) beat:75% con:2 vol:33</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">KLAC</div>
+<div class="tc-dt">2019-10-01</div>
+<div class="tc-pr">$146.42</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(70) beat:75% con:0 vol:33</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CCEP</div>
+<div class="tc-dt">2020-01-02</div>
+<div class="tc-pr">$42.77</div>
+<div class="tc-pnl"><span style="color:var(--green)">+16.3%</span></div>
+<div class="tc-rsn">Earn dropped: C(47)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AAPL</div>
+<div class="tc-dt">2020-01-02</div>
+<div class="tc-pr">$72.40</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(99) beat:88% con:5 vol:17</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">TRI</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$59.43</div>
+<div class="tc-pnl"><span style="color:var(--green)">+41.6%</span></div>
+<div class="tc-rsn">Earn dropped: D(22)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">SBUX</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$54.72</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-0.4%</span></div>
+<div class="tc-rsn">Earn dropped: E(10)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AEP</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$60.07</div>
+<div class="tc-pnl"><span style="color:var(--green)">+6.3%</span></div>
+<div class="tc-rsn">Earn dropped: E(20)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ORLY</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$19.15</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-26.6%</span></div>
+<div class="tc-rsn">Earn dropped: E(15)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">XEL</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$48.60</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-9.4%</span></div>
+<div class="tc-rsn">Earn dropped: E(16)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">PEP</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$99.04</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-12.8%</span></div>
+<div class="tc-rsn">Earn dropped: E(20)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CPRT</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$16.20</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-18.5%</span></div>
+<div class="tc-rsn">Earn dropped: D(25)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AMAT</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$41.04</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-12.9%</span></div>
+<div class="tc-rsn">Earn dropped: D(26)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">KLAC</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$122.94</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-16.0%</span></div>
+<div class="tc-rsn">Earn dropped: E(17)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AAPL</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$58.21</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-19.6%</span></div>
+<div class="tc-rsn">Earn dropped: D(30)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">REGN</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$493.91</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(69) beat:75% con:3 vol:59</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">TSLA</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$32.10</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(58) beat:75% con:0 vol:122</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">DXCM</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$63.70</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(55) beat:50% con:0 vol:70</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ZS</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$61.99</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(50) beat:50% con:2 vol:77</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">NFLX</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$36.41</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(50) beat:75% con:0 vol:59</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">TMUS</div>
+<div class="tc-dt">2020-04-01</div>
+<div class="tc-pr">$82.24</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(50) beat:62% con:1 vol:65</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">SHOP</div>
+<div class="tc-dt">2020-07-01</div>
+<div class="tc-pr">$101.66</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(87) beat:75% con:4 vol:64</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">NVDA</div>
+<div class="tc-dt">2020-07-01</div>
+<div class="tc-pr">$9.50</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(85) beat:88% con:4 vol:44</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">MSFT</div>
+<div class="tc-dt">2020-07-01</div>
+<div class="tc-pr">$195.43</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(83) beat:75% con:4 vol:30</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">EA</div>
+<div class="tc-dt">2020-07-01</div>
+<div class="tc-pr">$131.47</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(80) beat:75% con:4 vol:28</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">REGN</div>
+<div class="tc-dt">2021-01-04</div>
+<div class="tc-pr">$480.20</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-2.8%</span></div>
+<div class="tc-rsn">Earn dropped: D(23)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">DXCM</div>
+<div class="tc-dt">2021-01-04</div>
+<div class="tc-pr">$89.43</div>
+<div class="tc-pnl"><span style="color:var(--green)">+40.4%</span></div>
+<div class="tc-rsn">Earn dropped: C(37)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">LRCX</div>
+<div class="tc-dt">2021-01-04</div>
+<div class="tc-pr">$45.26</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(87) beat:75% con:4 vol:33</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ASML</div>
+<div class="tc-dt">2021-01-04</div>
+<div class="tc-pr">$477.32</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(84) beat:62% con:3 vol:27</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">TSLA</div>
+<div class="tc-dt">2021-04-01</div>
+<div class="tc-pr">$220.58</div>
+<div class="tc-pnl"><span style="color:var(--green)">+587.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(45)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">NFLX</div>
+<div class="tc-dt">2021-04-01</div>
+<div class="tc-pr">$53.94</div>
+<div class="tc-pnl"><span style="color:var(--green)">+48.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">PAYX</div>
+<div class="tc-dt">2021-04-01</div>
+<div class="tc-pr">$85.48</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(94) beat:88% con:3 vol:20</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">GOOG</div>
+<div class="tc-dt">2021-04-01</div>
+<div class="tc-pr">$106.09</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(90) beat:75% con:4 vol:32</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">TMUS</div>
+<div class="tc-dt">2021-10-01</div>
+<div class="tc-pr">$122.46</div>
+<div class="tc-pnl"><span style="color:var(--green)">+48.9%</span></div>
+<div class="tc-rsn">Earn dropped: C(36)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">SHOP</div>
+<div class="tc-dt">2021-10-01</div>
+<div class="tc-pr">$135.08</div>
+<div class="tc-pnl"><span style="color:var(--green)">+32.9%</span></div>
+<div class="tc-rsn">Earn dropped: C(43)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">FANG</div>
+<div class="tc-dt">2021-10-01</div>
+<div class="tc-pr">$81.36</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(89) beat:75% con:3 vol:53</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">PANW</div>
+<div class="tc-dt">2021-10-01</div>
+<div class="tc-pr">$81.08</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(83) beat:88% con:7 vol:43</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ZS</div>
+<div class="tc-dt">2022-04-01</div>
+<div class="tc-pr">$246.21</div>
+<div class="tc-pnl"><span style="color:var(--green)">+297.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(42)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">NVDA</div>
+<div class="tc-dt">2022-04-01</div>
+<div class="tc-pr">$26.66</div>
+<div class="tc-pnl"><span style="color:var(--green)">+180.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(40)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">EA</div>
+<div class="tc-dt">2022-04-01</div>
+<div class="tc-pr">$122.69</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-6.7%</span></div>
+<div class="tc-rsn">Earn dropped: E(15)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">LRCX</div>
+<div class="tc-dt">2022-04-01</div>
+<div class="tc-pr">$50.37</div>
+<div class="tc-pnl"><span style="color:var(--green)">+11.3%</span></div>
+<div class="tc-rsn">Earn dropped: E(10)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ASML</div>
+<div class="tc-dt">2022-04-01</div>
+<div class="tc-pr">$640.94</div>
+<div class="tc-pnl"><span style="color:var(--green)">+34.3%</span></div>
+<div class="tc-rsn">Earn dropped: E(21)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">EXC</div>
+<div class="tc-dt">2022-04-01</div>
+<div class="tc-pr">$41.63</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(92) beat:75% con:5 vol:19</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AEP</div>
+<div class="tc-dt">2022-04-01</div>
+<div class="tc-pr">$87.63</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(83) beat:75% con:5 vol:18</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">BKR</div>
+<div class="tc-dt">2022-04-01</div>
+<div class="tc-pr">$33.16</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(82) beat:88% con:5 vol:45</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">VRTX</div>
+<div class="tc-dt">2022-04-01</div>
+<div class="tc-pr">$266.15</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(77) beat:75% con:2 vol:25</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">KHC</div>
+<div class="tc-dt">2022-04-01</div>
+<div class="tc-pr">$33.35</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(72) beat:62% con:3 vol:25</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">MSFT</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$252.27</div>
+<div class="tc-pnl"><span style="color:var(--green)">+29.1%</span></div>
+<div class="tc-rsn">Earn dropped: E(20)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">PAYX</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$103.81</div>
+<div class="tc-pnl"><span style="color:var(--green)">+21.4%</span></div>
+<div class="tc-rsn">Earn dropped: D(32)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">GOOG</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$108.27</div>
+<div class="tc-pnl"><span style="color:var(--green)">+2.1%</span></div>
+<div class="tc-rsn">Earn dropped: E(10)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">FANG</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$103.05</div>
+<div class="tc-pnl"><span style="color:var(--green)">+26.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(41)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">PANW</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$84.71</div>
+<div class="tc-pnl"><span style="color:var(--green)">+4.5%</span></div>
+<div class="tc-rsn">Earn dropped: D(32)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">BKR</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$26.62</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-19.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(45)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">MNST</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$47.29</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(66) beat:62% con:4 vol:30</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">PEP</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$151.45</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(66) beat:62% con:2 vol:24</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">TMUS</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$132.17</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(65) beat:75% con:3 vol:34</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">XEL</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$64.62</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(65) beat:75% con:1 vol:22</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AMGN</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$218.36</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(63) beat:75% con:1 vol:19</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">PDD</div>
+<div class="tc-dt">2022-07-01</div>
+<div class="tc-pr">$64.82</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(60) beat:62% con:4 vol:97</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">EXC</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$34.11</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-18.1%</span></div>
+<div class="tc-rsn">Earn dropped: D(35)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AEP</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$77.37</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-11.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">KHC</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$28.95</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-13.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(41)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">MNST</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$44.53</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-5.8%</span></div>
+<div class="tc-rsn">Earn dropped: C(47)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">PEP</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$148.74</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-1.8%</span></div>
+<div class="tc-rsn">Earn dropped: C(46)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">XEL</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$58.70</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-9.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(48)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AMGN</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$206.51</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-5.4%</span></div>
+<div class="tc-rsn">Earn dropped: C(40)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">PDD</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$62.65</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-3.3%</span></div>
+<div class="tc-rsn">Earn dropped: C(45)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ORLY</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$47.88</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(72) beat:62% con:2 vol:20</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">REGN</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$731.08</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(56) beat:50% con:2 vol:50</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ADP</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$216.34</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(56) beat:62% con:1 vol:26</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CTAS</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$97.12</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(52) beat:50% con:1 vol:25</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">FANG</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$112.70</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(52) beat:50% con:1 vol:48</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ZS</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$170.51</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(50) beat:62% con:4 vol:71</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CDNS</div>
+<div class="tc-dt">2022-10-03</div>
+<div class="tc-pr">$170.28</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(49) beat:50% con:1 vol:28</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">VRTX</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$286.02</div>
+<div class="tc-pnl"><span style="color:var(--green)">+7.5%</span></div>
+<div class="tc-rsn">Earn dropped: C(42)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">TMUS</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$134.33</div>
+<div class="tc-pnl"><span style="color:var(--green)">+1.6%</span></div>
+<div class="tc-rsn">Earn dropped: C(42)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">REGN</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$716.50</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-2.0%</span></div>
+<div class="tc-rsn">Earn dropped: C(35)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ADP</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$222.46</div>
+<div class="tc-pnl"><span style="color:var(--green)">+2.8%</span></div>
+<div class="tc-rsn">Earn dropped: C(35)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CTAS</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$109.07</div>
+<div class="tc-pnl"><span style="color:var(--green)">+12.3%</span></div>
+<div class="tc-rsn">Earn dropped: C(42)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">FANG</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$115.89</div>
+<div class="tc-pnl"><span style="color:var(--green)">+2.8%</span></div>
+<div class="tc-rsn">Earn dropped: D(26)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ZS</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$110.19</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-35.4%</span></div>
+<div class="tc-rsn">Earn dropped: E(15)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CDNS</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$159.64</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-6.2%</span></div>
+<div class="tc-rsn">Earn dropped: E(10)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">KHC</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$35.12</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(82) beat:75% con:4 vol:19</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">TRI</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$109.77</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(61) beat:62% con:1 vol:24</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">XEL</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$63.18</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(58) beat:62% con:0 vol:25</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">WMT</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$46.15</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(57) beat:62% con:1 vol:23</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">PDD</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$84.53</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(55) beat:50% con:1 vol:86</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">SBUX</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$93.16</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(55) beat:62% con:1 vol:32</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AXON</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$168.24</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(52) beat:62% con:1 vol:47</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ALNY</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$233.59</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(52) beat:62% con:0 vol:46</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CCEP</div>
+<div class="tc-dt">2023-01-03</div>
+<div class="tc-pr">$49.91</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">B(52) beat:50% con:0 vol:22</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">PDD</div>
+<div class="tc-dt">2023-04-03</div>
+<div class="tc-pr">$74.84</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-11.5%</span></div>
+<div class="tc-rsn">Earn dropped: D(30)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ALNY</div>
+<div class="tc-dt">2023-04-03</div>
+<div class="tc-pr">$200.70</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-14.1%</span></div>
+<div class="tc-rsn">Earn dropped: C(39)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CPRT</div>
+<div class="tc-dt">2023-04-03</div>
+<div class="tc-pr">$37.74</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(82) beat:75% con:4 vol:22</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">BKNG</div>
+<div class="tc-dt">2023-04-03</div>
+<div class="tc-pr">$2622.28</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(80) beat:75% con:4 vol:23</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">KHC</div>
+<div class="tc-dt">2023-07-03</div>
+<div class="tc-pr">$31.49</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-10.3%</span></div>
+<div class="tc-rsn">Earn dropped: C(38)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">XEL</div>
+<div class="tc-dt">2023-07-03</div>
+<div class="tc-pr">$57.72</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-8.6%</span></div>
+<div class="tc-rsn">Earn dropped: C(37)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AXON</div>
+<div class="tc-dt">2023-07-03</div>
+<div class="tc-pr">$194.58</div>
+<div class="tc-pnl"><span style="color:var(--green)">+15.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AMAT</div>
+<div class="tc-dt">2023-07-03</div>
+<div class="tc-pr">$142.30</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(88) beat:75% con:3 vol:32</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">NFLX</div>
+<div class="tc-dt">2023-07-03</div>
+<div class="tc-pr">$44.14</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(88) beat:62% con:3 vol:35</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">MCHP</div>
+<div class="tc-dt">2023-07-03</div>
+<div class="tc-pr">$85.08</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(86) beat:75% con:3 vol:35</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ORLY</div>
+<div class="tc-dt">2023-10-02</div>
+<div class="tc-pr">$59.91</div>
+<div class="tc-pnl"><span style="color:var(--green)">+25.1%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">TRI</div>
+<div class="tc-dt">2023-10-02</div>
+<div class="tc-pr">$116.99</div>
+<div class="tc-pnl"><span style="color:var(--green)">+6.6%</span></div>
+<div class="tc-rsn">Earn dropped: C(38)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">SBUX</div>
+<div class="tc-dt">2023-10-02</div>
+<div class="tc-pr">$85.49</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-8.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(35)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">NFLX</div>
+<div class="tc-dt">2023-10-02</div>
+<div class="tc-pr">$38.03</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-13.8%</span></div>
+<div class="tc-rsn">Earn dropped: C(45)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">MCHP</div>
+<div class="tc-dt">2023-10-02</div>
+<div class="tc-pr">$73.90</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-13.1%</span></div>
+<div class="tc-rsn">Earn dropped: C(43)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">SNPS</div>
+<div class="tc-dt">2023-10-02</div>
+<div class="tc-pr">$463.82</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(90) beat:75% con:4 vol:23</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">META</div>
+<div class="tc-dt">2023-10-02</div>
+<div class="tc-pr">$304.69</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(82) beat:88% con:2 vol:31</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">COST</div>
+<div class="tc-dt">2023-10-02</div>
+<div class="tc-pr">$550.72</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(79) beat:88% con:2 vol:14</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CMCSA</div>
+<div class="tc-dt">2023-10-02</div>
+<div class="tc-pr">$38.30</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(77) beat:75% con:1 vol:19</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ADBE</div>
+<div class="tc-dt">2023-10-02</div>
+<div class="tc-pr">$521.13</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(76) beat:75% con:1 vol:28</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">BKNG</div>
+<div class="tc-dt">2024-04-01</div>
+<div class="tc-pr">$3520.40</div>
+<div class="tc-pnl"><span style="color:var(--green)">+34.2%</span></div>
+<div class="tc-rsn">Earn dropped: C(40)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CMCSA</div>
+<div class="tc-dt">2024-04-01</div>
+<div class="tc-pr">$36.88</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-3.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(36)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ADBE</div>
+<div class="tc-dt">2024-04-01</div>
+<div class="tc-pr">$502.09</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-3.7%</span></div>
+<div class="tc-rsn">Earn dropped: E(21)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AMZN</div>
+<div class="tc-dt">2024-04-01</div>
+<div class="tc-pr">$180.97</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(90) beat:88% con:7 vol:27</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">MSFT</div>
+<div class="tc-dt">2024-04-01</div>
+<div class="tc-pr">$419.11</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(90) beat:75% con:4 vol:19</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">LRCX</div>
+<div class="tc-dt">2024-04-01</div>
+<div class="tc-pr">$96.52</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(90) beat:75% con:6 vol:33</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CPRT</div>
+<div class="tc-dt">2024-07-01</div>
+<div class="tc-pr">$53.35</div>
+<div class="tc-pnl"><span style="color:var(--green)">+41.4%</span></div>
+<div class="tc-rsn">Earn dropped: C(37)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">WDC</div>
+<div class="tc-dt">2024-07-01</div>
+<div class="tc-pr">$57.51</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(91) beat:100% con:9 vol:32</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AMAT</div>
+<div class="tc-dt">2024-10-01</div>
+<div class="tc-pr">$194.79</div>
+<div class="tc-pnl"><span style="color:var(--green)">+36.9%</span></div>
+<div class="tc-rsn">Earn dropped: D(34)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">SNPS</div>
+<div class="tc-dt">2024-10-01</div>
+<div class="tc-pr">$495.56</div>
+<div class="tc-pnl"><span style="color:var(--green)">+6.8%</span></div>
+<div class="tc-rsn">Earn dropped: E(11)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AMZN</div>
+<div class="tc-dt">2024-10-01</div>
+<div class="tc-pr">$185.13</div>
+<div class="tc-pnl"><span style="color:var(--green)">+2.3%</span></div>
+<div class="tc-rsn">Earn dropped: C(46)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">LRCX</div>
+<div class="tc-dt">2024-10-01</div>
+<div class="tc-pr">$78.77</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-18.4%</span></div>
+<div class="tc-rsn">Earn dropped: E(20)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">WDC</div>
+<div class="tc-dt">2024-10-01</div>
+<div class="tc-pr">$50.27</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-12.6%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">APP</div>
+<div class="tc-dt">2024-10-01</div>
+<div class="tc-pr">$130.65</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(86) beat:88% con:3 vol:65</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ORLY</div>
+<div class="tc-dt">2024-10-01</div>
+<div class="tc-pr">$77.47</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(85) beat:75% con:5 vol:17</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">PAYX</div>
+<div class="tc-dt">2024-10-01</div>
+<div class="tc-pr">$134.21</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(84) beat:75% con:4 vol:19</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">XEL</div>
+<div class="tc-dt">2024-10-01</div>
+<div class="tc-pr">$62.74</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(84) beat:75% con:4 vol:17</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ADP</div>
+<div class="tc-dt">2024-10-01</div>
+<div class="tc-pr">$272.59</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(83) beat:75% con:4 vol:14</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CCEP</div>
+<div class="tc-dt">2025-01-02</div>
+<div class="tc-pr">$74.58</div>
+<div class="tc-pnl"><span style="color:var(--green)">+49.4%</span></div>
+<div class="tc-rsn">Earn dropped: C(42)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">MSFT</div>
+<div class="tc-dt">2025-01-02</div>
+<div class="tc-pr">$415.51</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-0.9%</span></div>
+<div class="tc-rsn">Earn dropped: C(35)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">AMZN</div>
+<div class="tc-dt">2025-01-02</div>
+<div class="tc-pr">$220.22</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(83) beat:75% con:5 vol:29</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">DASH</div>
+<div class="tc-dt">2025-01-02</div>
+<div class="tc-pr">$170.65</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(80) beat:75% con:1 vol:27</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">META</div>
+<div class="tc-dt">2025-04-01</div>
+<div class="tc-pr">$584.68</div>
+<div class="tc-pnl"><span style="color:var(--green)">+91.9%</span></div>
+<div class="tc-rsn">Earn dropped: C(44)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">AMZN</div>
+<div class="tc-dt">2025-04-01</div>
+<div class="tc-pr">$192.17</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-12.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(42)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">DASH</div>
+<div class="tc-dt">2025-04-01</div>
+<div class="tc-pr">$182.42</div>
+<div class="tc-pnl"><span style="color:var(--green)">+6.9%</span></div>
+<div class="tc-rsn">Earn dropped: C(46)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">VRSK</div>
+<div class="tc-dt">2025-04-01</div>
+<div class="tc-pr">$297.05</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(84) beat:75% con:4 vol:21</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">FER</div>
+<div class="tc-dt">2025-04-01</div>
+<div class="tc-pr">$44.50</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(80) beat:88% con:6 vol:24</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">CCEP</div>
+<div class="tc-dt">2025-04-01</div>
+<div class="tc-pr">$84.94</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(80) beat:62% con:4 vol:19</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">COST</div>
+<div class="tc-dt">2025-07-01</div>
+<div class="tc-pr">$981.86</div>
+<div class="tc-pnl"><span style="color:var(--green)">+78.3%</span></div>
+<div class="tc-rsn">Earn dropped: C(40)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">PAYX</div>
+<div class="tc-dt">2025-07-01</div>
+<div class="tc-pr">$143.42</div>
+<div class="tc-pnl"><span style="color:var(--green)">+6.9%</span></div>
+<div class="tc-rsn">Earn dropped: C(47)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">XEL</div>
+<div class="tc-dt">2025-07-01</div>
+<div class="tc-pr">$67.65</div>
+<div class="tc-pnl"><span style="color:var(--green)">+7.8%</span></div>
+<div class="tc-rsn">Earn dropped: C(40)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">TRI</div>
+<div class="tc-dt">2025-07-01</div>
+<div class="tc-pr">$198.60</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(82) beat:75% con:4 vol:24</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">GILD</div>
+<div class="tc-dt">2025-07-01</div>
+<div class="tc-pr">$110.23</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(82) beat:75% con:3 vol:34</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">FAST</div>
+<div class="tc-dt">2025-07-01</div>
+<div class="tc-pr">$42.20</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(80) beat:88% con:7 vol:30</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ADP</div>
+<div class="tc-dt">2025-10-01</div>
+<div class="tc-pr">$289.74</div>
+<div class="tc-pnl"><span style="color:var(--green)">+6.3%</span></div>
+<div class="tc-rsn">Earn dropped: D(25)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">VRSK</div>
+<div class="tc-dt">2025-10-01</div>
+<div class="tc-pr">$249.03</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-16.2%</span></div>
+<div class="tc-rsn">Earn dropped: E(21)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">TRI</div>
+<div class="tc-dt">2025-10-01</div>
+<div class="tc-pr">$150.76</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-24.1%</span></div>
+<div class="tc-rsn">Earn dropped: E(20)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">WDC</div>
+<div class="tc-dt">2025-10-01</div>
+<div class="tc-pr">$130.49</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(87) beat:88% con:7 vol:43</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">STX</div>
+<div class="tc-dt">2025-10-01</div>
+<div class="tc-pr">$256.17</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(86) beat:88% con:7 vol:40</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">INSM</div>
+<div class="tc-dt">2025-10-01</div>
+<div class="tc-pr">$147.28</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(86) beat:62% con:5 vol:32</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">APP</div>
+<div class="tc-dt">2026-01-02</div>
+<div class="tc-pr">$618.32</div>
+<div class="tc-pnl"><span style="color:var(--green)">+373.3%</span></div>
+<div class="tc-rsn">Earn dropped: C(40)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">ORLY</div>
+<div class="tc-dt">2026-01-02</div>
+<div class="tc-pr">$90.34</div>
+<div class="tc-pnl"><span style="color:var(--green)">+16.6%</span></div>
+<div class="tc-rsn">Earn dropped: C(36)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">CCEP</div>
+<div class="tc-dt">2026-01-02</div>
+<div class="tc-pr">$88.21</div>
+<div class="tc-pnl"><span style="color:var(--green)">+3.8%</span></div>
+<div class="tc-rsn">Earn dropped: C(42)</div>
+</div><div class="tc tc-sell">
+<div class="tc-act" style="color:var(--red)">SELL</div>
+<div class="tc-tk">FAST</div>
+<div class="tc-dt">2026-01-02</div>
+<div class="tc-pr">$40.22</div>
+<div class="tc-pnl"><span style="color:var(--red)">+-4.7%</span></div>
+<div class="tc-rsn">Earn dropped: C(40)</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">MU</div>
+<div class="tc-dt">2026-01-02</div>
+<div class="tc-pr">$315.42</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(89) beat:88% con:6 vol:69</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">EA</div>
+<div class="tc-dt">2026-01-02</div>
+<div class="tc-pr">$204.41</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(86) beat:75% con:3 vol:3</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ROST</div>
+<div class="tc-dt">2026-01-02</div>
+<div class="tc-pr">$182.74</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(82) beat:88% con:7 vol:24</div>
+</div><div class="tc tc-buy">
+<div class="tc-act" style="color:var(--green)">BUY</div>
+<div class="tc-tk">ASML</div>
+<div class="tc-dt">2026-01-02</div>
+<div class="tc-pr">$1162.25</div>
+<div class="tc-pnl"></div>
+<div class="tc-rsn">A(81) beat:88% con:6 vol:39</div>
+</div></div>
+<div class="panel pad" id="p-mc"><div class="sname">🎲 Monte Carlo Simulation</div>
+<div style="font-size:9px;color:var(--sub);margin-bottom:8px">Simulates future portfolio paths based on historical daily return distribution. Uses bootstrapped returns from your backtest.</div>
+<div class="mc-ctrl">
+<div><label>Horizon</label><br><select id="mc-horizon"><option value="252">1 Year</option><option value="756" selected="">3 Years</option><option value="1260">5 Years</option><option value="2520">10 Years</option></select></div>
+<div><label>Simulations</label><br><select id="mc-sims"><option value="1000">1,000</option><option value="5000" selected="">5,000</option><option value="10000">10,000</option></select></div>
+<div><label>Starting Capital</label><br><input type="number" id="mc-cap" value="1227621" style="width:100px"></div>
+<div><label>Confidence</label><br><select id="mc-conf"><option value="0.95" selected="">95%</option><option value="0.99">99%</option><option value="0.90">90%</option></select></div>
+<button class="mc-btn" id="mc-run">▶ RUN SIMULATION</button>
+<span id="mc-status" style="font-size:9px;color:var(--muted)"></span>
+</div>
+<div id="mc-results"></div></div>
+</div>
+
+<script src="./BacktestResult2_files/chart.umd.min.js.download"></script>
+<script>
+let D={};let BM='SPY';const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+function pn(v,d=1){return v!=null&&!isNaN(v)?Number(v).toFixed(d):'-'}
+function clr(v){return v>0?'var(--green)':'var(--red)'}
+function mc(v){return v>=0?'$'+Number(v).toLocaleString(undefined,{maximumFractionDigits:0}):'-$'+Math.abs(Number(v)).toLocaleString(undefined,{maximumFractionDigits:0})}
+
+function init(){
+$('#upload').style.display='none';$('#dash').style.display='flex';
+const r=D.results||{};
+BM=D.benchmark||'SPY';
+$('#hinfo').textContent=`${D.strategy||''} | ${D.period||''}`;
+
+// Tabs
+$$('.tab').forEach(t=>t.addEventListener('click',()=>{$$('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');$$('.panel').forEach(p=>p.classList.remove('active'));$('#p-'+t.dataset.tab).classList.add('active')}));
+
+buildOverview();buildQuarters();buildHoldings();buildTrades();buildMC();
+}
+
+function buildMC(){
+const eq=D.equity||[];if(eq.length<20){$('#p-mc').innerHTML='<p style="color:var(--muted)">Need equity data for Monte Carlo</p>';return}
+
+let h=`<div class="sname">🎲 Monte Carlo Simulation</div>
+<div style="font-size:9px;color:var(--sub);margin-bottom:8px">Simulates future portfolio paths based on historical daily return distribution. Uses bootstrapped returns from your backtest.</div>
+<div class="mc-ctrl">
+<div><label>Horizon</label><br><select id="mc-horizon"><option value="252">1 Year</option><option value="756" selected>3 Years</option><option value="1260">5 Years</option><option value="2520">10 Years</option></select></div>
+<div><label>Simulations</label><br><select id="mc-sims"><option value="1000">1,000</option><option value="5000" selected>5,000</option><option value="10000">10,000</option></select></div>
+<div><label>Starting Capital</label><br><input type="number" id="mc-cap" value="${D.results?.final_value||100000}" style="width:100px"></div>
+<div><label>Confidence</label><br><select id="mc-conf"><option value="0.95" selected>95%</option><option value="0.99">99%</option><option value="0.90">90%</option></select></div>
+<button class="mc-btn" id="mc-run">▶ RUN SIMULATION</button>
+<span id="mc-status" style="font-size:9px;color:var(--muted)"></span>
+</div>
+<div id="mc-results"></div>`;
+$('#p-mc').innerHTML=h;
+$('#mc-run').addEventListener('click',runMC);
+}
+
+function runMC(){
+const eq=D.equity||[];
+const horizon=+$('#mc-horizon').value;
+const numSims=+$('#mc-sims').value;
+const startCap=+$('#mc-cap').value;
+const conf=+$('#mc-conf').value;
+$('#mc-status').textContent='Running...';
+
+// Calculate daily returns from equity curve
+const vals=eq.map(e=>e.portfolio);
+const dailyRets=[];
+for(let i=1;i<vals.length;i++){
+if(vals[i]>0&&vals[i-1]>0) dailyRets.push(vals[i]/vals[i-1]-1);
+}
+if(dailyRets.length<20){$('#mc-results').innerHTML='<p style="color:var(--muted)">Insufficient return data</p>';return}
+
+// Also get benchmark returns
+const bvals=eq.map(e=>e.benchmark).filter(v=>v!=null&&v>0);
+const bRets=[];
+for(let i=1;i<bvals.length;i++){if(bvals[i]>0&&bvals[i-1]>0) bRets.push(bvals[i]/bvals[i-1]-1)}
+
+const mu=dailyRets.reduce((a,b)=>a+b,0)/dailyRets.length;
+const sigma=Math.sqrt(dailyRets.reduce((a,b)=>a+(b-mu)**2,0)/(dailyRets.length-1));
+
+// Run simulations using bootstrap (random sampling from actual returns)
+setTimeout(()=>{
+const finals=[];
+const paths=[];
+const drawdowns=[];
+const storeEvery=Math.max(1,Math.floor(horizon/200));
+
+for(let s=0;s<numSims;s++){
+let v=startCap;let peak=v;let maxDD=0;
+const path=[v];
+for(let d=0;d<horizon;d++){
+const r=dailyRets[Math.floor(Math.random()*dailyRets.length)];
+v*=(1+r);
+if(v>peak)peak=v;
+const dd=(v-peak)/peak;
+if(dd<maxDD)maxDD=dd;
+if(d%storeEvery===0)path.push(v);
+}
+finals.push(v);
+paths.push(path);
+drawdowns.push(maxDD);
+}
+
+finals.sort((a,b)=>a-b);
+drawdowns.sort((a,b)=>a-b);
+
+// Percentiles
+const pct=(arr,p)=>arr[Math.floor(arr.length*p)];
+const median=pct(finals,0.5);
+const p5=pct(finals,0.05);const p10=pct(finals,0.10);const p25=pct(finals,0.25);
+const p75=pct(finals,0.75);const p90=pct(finals,0.90);const p95=pct(finals,0.95);
+const mean=finals.reduce((a,b)=>a+b,0)/finals.length;
+const probProfit=(finals.filter(v=>v>startCap).length/finals.length*100);
+const probDouble=(finals.filter(v=>v>startCap*2).length/finals.length*100);
+
+// VaR & CVaR
+const varIdx=Math.floor(finals.length*(1-conf));
+const VaR=((startCap-finals[varIdx])/startCap*100);
+const CVaR=((startCap-finals.slice(0,varIdx).reduce((a,b)=>a+b,0)/varIdx)/startCap*100);
+const medianDD=pct(drawdowns,0.5)*100;
+const worstDD=drawdowns[0]*100;
+
+// Annualized
+const yrs=horizon/252;
+const medAnn=((median/startCap)**(1/yrs)-1)*100;
+const p5Ann=((p5/startCap)**(1/yrs)-1)*100;
+const p95Ann=((p95/startCap)**(1/yrs)-1)*100;
+
+// Benchmark comparison
+const probBeatSpy=(()=>{
+if(bRets.length<20)return null;
+const bmu=bRets.reduce((a,b)=>a+b,0)/bRets.length;
+const spyFinal=startCap*((1+bmu)**horizon);
+return(finals.filter(v=>v>spyFinal).length/finals.length*100);
+})();
+
+// Build results HTML
+let r=`<div class="mc-stats">
+<div class="mc-stat"><div class="mc-stat-l">Median Outcome</div><div class="mc-stat-v" style="color:var(--green)">${mc(median)}</div><div class="mc-stat-s">${((median/startCap-1)*100).toFixed(0)}% return</div></div>
+<div class="mc-stat"><div class="mc-stat-l">Mean Outcome</div><div class="mc-stat-v" style="color:var(--cyan)">${mc(mean)}</div><div class="mc-stat-s">${medAnn.toFixed(1)}% ann (median)</div></div>
+<div class="mc-stat"><div class="mc-stat-l">Prob of Profit</div><div class="mc-stat-v" style="color:${probProfit>50?'var(--green)':'var(--red)'}">${probProfit.toFixed(1)}%</div><div class="mc-stat-s">Prob 2x: ${probDouble.toFixed(1)}%</div></div>
+<div class="mc-stat"><div class="mc-stat-l">VaR (${(conf*100).toFixed(0)}%)</div><div class="mc-stat-v" style="color:var(--red)">${VaR.toFixed(1)}%</div><div class="mc-stat-s">CVaR: ${CVaR.toFixed(1)}%</div></div>
+<div class="mc-stat"><div class="mc-stat-l">Median Max DD</div><div class="mc-stat-v" style="color:var(--red)">${medianDD.toFixed(1)}%</div><div class="mc-stat-s">Worst: ${worstDD.toFixed(1)}%</div></div>
+</div>`;
+
+// Percentile range
+r+=`<div class="mc-pct">
+<div class="mc-pct-box"><div class="mc-stat-l">5th Pct (Bear)</div><div class="mc-stat-v" style="color:var(--red);font-size:14px">${mc(p5)}</div><div class="mc-stat-s">${p5Ann.toFixed(1)}% ann</div></div>
+<div class="mc-pct-box"><div class="mc-stat-l">25th Pct</div><div class="mc-stat-v" style="color:var(--amber);font-size:14px">${mc(p25)}</div></div>
+<div class="mc-pct-box"><div class="mc-stat-l">75th Pct</div><div class="mc-stat-v" style="color:var(--green);font-size:14px">${mc(p75)}</div></div>
+<div class="mc-pct-box"><div class="mc-stat-l">95th Pct (Bull)</div><div class="mc-stat-v" style="color:var(--green);font-size:14px">${mc(p95)}</div><div class="mc-stat-s">${p95Ann.toFixed(1)}% ann</div></div>
+</div>`;
+
+if(probBeatSpy!==null){
+r+=`<div style="text-align:center;padding:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:12px">
+<span style="font-size:10px;color:var(--sub)">Probability of beating ${BM}:</span>
+<span style="font-family:var(--mono);font-size:18px;font-weight:900;color:${probBeatSpy>50?'var(--green)':'var(--red)'};margin-left:8px">${probBeatSpy.toFixed(1)}%</span>
+</div>`}
+
+// Fan chart
+r+=`<div class="chart-wrap"><div class="chart-title"><span class="dot" style="background:var(--purple)"></span>Simulation Paths (${numSims.toLocaleString()} runs, ${yrs.toFixed(0)}yr horizon)</div><canvas id="mcChart" height="300"></canvas></div>`;
+
+// Distribution histogram
+r+=`<div class="chart-wrap"><div class="chart-title"><span class="dot" style="background:var(--cyan)"></span>Final Value Distribution</div><canvas id="mcHist" height="200"></canvas></div>`;
+
+// Info
+r+=`<div style="font-size:8px;color:var(--dim);margin-top:6px;text-align:center">
+Bootstrap method: random sampling from ${dailyRets.length} historical daily returns (μ=${(mu*100).toFixed(3)}%/day, σ=${(sigma*100).toFixed(3)}%/day) | ${numSims.toLocaleString()} simulations × ${horizon} days
+</div>`;
+
+$('#mc-results').innerHTML=r;
+$('#mc-status').textContent=`✅ Done (${numSims.toLocaleString()} sims)`;
+
+// Draw fan chart
+const pathLen=paths[0].length;
+const labels=Array.from({length:pathLen},(_,i)=>i===0?'Start':i===pathLen-1?`${yrs.toFixed(0)}Y`:'');
+
+// Calculate percentile bands at each time step
+const p5line=[],p25line=[],p50line=[],p75line=[],p95line=[];
+for(let t=0;t<pathLen;t++){
+const col=paths.map(p=>p[t]).sort((a,b)=>a-b);
+p5line.push(pct(col,0.05));p25line.push(pct(col,0.25));p50line.push(pct(col,0.5));
+p75line.push(pct(col,0.75));p95line.push(pct(col,0.95));
+}
+
+const mcOpts={responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:8}}},tooltip:{mode:'index',intersect:false}},
+scales:{x:{display:false},y:{ticks:{color:'#475569',font:{size:9},callback:v=>'$'+(v/1000).toFixed(0)+'k'},grid:{color:'#1e293b33'}}}};
+
+new Chart($('#mcChart'),{type:'line',data:{labels:labels,datasets:[
+{label:'95th',data:p95line,borderColor:'#10b98140',backgroundColor:'#10b98108',fill:'+1',pointRadius:0,borderWidth:1},
+{label:'75th',data:p75line,borderColor:'#10b98160',backgroundColor:'#10b98115',fill:'+1',pointRadius:0,borderWidth:1},
+{label:'Median',data:p50line,borderColor:'#a855f7',backgroundColor:'transparent',pointRadius:0,borderWidth:2.5},
+{label:'25th',data:p25line,borderColor:'#f59e0b60',backgroundColor:'#f59e0b10',fill:'+1',pointRadius:0,borderWidth:1},
+{label:'5th',data:p5line,borderColor:'#ef444440',backgroundColor:'#ef444408',fill:false,pointRadius:0,borderWidth:1},
+{label:'Start',data:Array(pathLen).fill(startCap),borderColor:'#475569',borderDash:[4,4],pointRadius:0,borderWidth:1,fill:false},
+]},options:mcOpts});
+
+// Distribution histogram
+const bins=40;
+const minV=finals[0],maxV=finals[finals.length-1];
+const binW=(maxV-minV)/bins;
+const histData=Array(bins).fill(0);
+finals.forEach(v=>{const bi=Math.min(Math.floor((v-minV)/binW),bins-1);histData[bi]++});
+const histLabels=Array.from({length:bins},(_,i)=>'$'+(((minV+i*binW)/1000).toFixed(0))+'k');
+const histColors=Array.from({length:bins},(_,i)=>{
+const val=minV+i*binW;return val<startCap?'#ef444480':'#10b98180';
+});
+
+new Chart($('#mcHist'),{type:'bar',data:{labels:histLabels,datasets:[
+{data:histData,backgroundColor:histColors,borderWidth:0,borderRadius:2}
+]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw} simulations`}}},
+scales:{x:{ticks:{color:'#475569',maxTicksLimit:10,font:{size:7}},grid:{display:false}},
+y:{ticks:{color:'#475569',font:{size:8}},grid:{color:'#1e293b33'}}}}});
+
+},50); // setTimeout for UI responsiveness
+}
+
+function buildOverview(){
+const r=D.results||{};const beat=r.alpha>0;
+
+// If sharpe/drawdown are 0, recompute from equity data
+const eqData=D.equity||[];
+if((r.sharpe===0||!r.sharpe)&&eqData.length>20){
+const vals=eqData.map(e=>e.portfolio).filter(v=>v>0);
+const bvals=eqData.map(e=>e.benchmark).filter(v=>v!=null&&v>0);
+const rets=[];for(let i=1;i<vals.length;i++)rets.push(vals[i]/vals[i-1]-1);
+const brets=[];for(let i=1;i<bvals.length;i++)brets.push(bvals[i]/bvals[i-1]-1);
+const mean=a=>a.reduce((s,v)=>s+v,0)/a.length;
+const std=a=>{const m=mean(a);return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(a.length-1))};
+// Approx weekly sampling (every 5 days), annualize with sqrt(52)
+if(rets.length>5){
+const mu=mean(rets),s=std(rets);
+r.sharpe=Math.round(mu/s*Math.sqrt(52)*100)/100;
+const negR=rets.filter(v=>v<0);
+r.sortino=negR.length>0?Math.round(mu/std(negR)*Math.sqrt(52)*100)/100:0;
+// Drawdown
+let peak=0;let maxDD=0;
+vals.forEach(v=>{if(v>peak)peak=v;const dd=(v-peak)/peak*100;if(dd<maxDD)maxDD=dd});
+r.max_drawdown=Math.round(maxDD*10)/10;
+// Annualized
+const yrs=D.years||(eqData.length*5/252);
+r.annualized=Math.round(((vals[vals.length-1]/vals[0])**(1/yrs)-1)*10000)/100;
+}
+if(brets.length>5){
+const bmu=mean(brets),bs=std(brets);
+r.spy_sharpe=Math.round(bmu/bs*Math.sqrt(52)*100)/100;
+const bneg=brets.filter(v=>v<0);
+r.spy_sortino=bneg.length>0?Math.round(bmu/std(bneg)*Math.sqrt(52)*100)/100:0;
+let bp=0;let bdd=0;
+bvals.forEach(v=>{if(v>bp)bp=v;const dd=(v-bp)/bp*100;if(dd<bdd)bdd=dd});
+r.spy_drawdown=Math.round(bdd*10)/10;
+const yrs2=D.years||(eqData.length*5/252);
+r.spy_annualized=Math.round(((bvals[bvals.length-1]/bvals[0])**(1/yrs2)-1)*10000)/100;
+}
+}
+
+let h=`<div class="trophy">${beat?'🏆':''} Strategy ${beat?'BEAT':'vs'} ${BM} by ${beat?'+':''}${pn(r.alpha,1)}%<br><span style="font-size:11px;color:var(--muted)">${mc(D.capital||100000)} → ${mc(r.final_value)} (+${pn(r.total_return,1)}%) vs ${BM} +${pn(r.spy_return,1)}% over ${D.years} years</span></div>`;
+
+h+=`<div class="sg" style="grid-template-columns:repeat(7,1fr)">
+<div class="sc sc-green"><div class="sc-lbl">Total Return</div><div class="sc-val" style="color:var(--green)">+${pn(r.total_return,1)}%</div><div class="sc-sub">${mc(D.capital)} → ${mc(r.final_value)}<br>${BM}: +${pn(r.spy_return,1)}%</div></div>
+<div class="sc sc-green"><div class="sc-lbl">Annualized</div><div class="sc-val" style="color:var(--green)">+${pn(r.annualized,1)}%</div><div class="sc-sub">Over ${D.years} years<br>${BM}: +${pn(r.spy_annualized,1)}%</div></div>
+<div class="sc sc-red"><div class="sc-lbl">Max Drawdown</div><div class="sc-val" style="color:var(--red)">${pn(r.max_drawdown,1)}%</div><div class="sc-sub">Worst peak-to-trough<br>${BM}: ${pn(r.spy_drawdown,1)}%</div></div>
+<div class="sc sc-amber"><div class="sc-lbl">Sharpe Ratio</div><div class="sc-val" style="color:var(--amber)">${pn(r.sharpe,2)}</div><div class="sc-sub">Risk-adjusted<br>${BM}: ${pn(r.spy_sharpe,2)}</div></div>
+<div class="sc sc-purple"><div class="sc-lbl">Sortino Ratio</div><div class="sc-val" style="color:var(--purple)">${pn(r.sortino,2)}</div><div class="sc-sub">Downside risk-adj<br>${BM}: ${pn(r.spy_sortino,2)}</div></div>
+<div class="sc sc-cyan"><div class="sc-lbl">Final Value</div><div class="sc-val" style="color:var(--cyan)">${mc(r.final_value)}</div><div class="sc-sub">From ${mc(D.capital)}</div></div>
+<div class="sc sc-purple"><div class="sc-lbl">Alpha vs ${BM}</div><div class="sc-val" style="color:${clr(r.alpha)}">+${pn(r.alpha,1)}%</div><div class="sc-sub">${r.total_buys} buys, ${r.total_sells} sells<br>Win rate: ${pn(r.win_rate,0)}%</div></div>
+</div>`;
+
+// Equity chart
+h+=`<div class="chart-wrap"><div class="chart-title"><span class="dot" style="background:var(--green)"></span>Equity Curve — Strategy vs ${BM}</div><canvas id="eqChart" height="280"></canvas></div>`;
+
+// Drawdown + cumulative side by side
+h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div class="chart-wrap"><div class="chart-title"><span class="dot" style="background:var(--red)"></span>Drawdowns</div><canvas id="ddChart" height="200"></canvas></div>
+<div class="chart-wrap"><div class="chart-title"><span class="dot" style="background:var(--amber)"></span>Strategy vs Benchmark — Cumulative %</div><canvas id="cumChart" height="200"></canvas></div>
+</div>`;
+
+$('#p-overview').innerHTML=h;
+
+// Draw charts
+const eqC=D.equity||[];
+const labels=eqC.map(e=>e.date);
+const pvals=eqC.map(e=>e.portfolio);
+const bvals2=eqC.map(e=>e.benchmark);
+
+const chartOpts={responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:9}}},tooltip:{mode:'index',intersect:false}},scales:{x:{ticks:{color:'#475569',maxTicksLimit:8,font:{size:8}},grid:{color:'#1e293b33'}},y:{ticks:{color:'#475569',font:{size:9},callback:v=>'$'+v.toLocaleString()},grid:{color:'#1e293b33'}}}};
+
+new Chart($('#eqChart'),{type:'line',data:{labels,datasets:[
+{label:'Strategy',data:pvals,borderColor:'#10b981',backgroundColor:'#10b98108',fill:true,pointRadius:0,borderWidth:2},
+{label:BM||'Benchmark',data:bvals2,borderColor:'#ef4444',borderDash:[4,3],pointRadius:0,borderWidth:1.5,fill:false}
+]},options:chartOpts});
+
+// Drawdown
+const pdd=pvals.map((v,i)=>{const mx=Math.max(...pvals.slice(0,i+1));return((v-mx)/mx)*100});
+const bdd=bvals2.map((v,i)=>{const mx=Math.max(...bvals2.slice(0,i+1));return v?((v-mx)/mx)*100:0});
+const ddOpts={...chartOpts,scales:{...chartOpts.scales,y:{...chartOpts.scales.y,ticks:{...chartOpts.scales.y.ticks,callback:v=>v.toFixed(0)+'%'}}}};
+new Chart($('#ddChart'),{type:'line',data:{labels,datasets:[
+{label:'Strategy',data:pdd,borderColor:'#10b981',backgroundColor:'#10b98120',fill:true,pointRadius:0,borderWidth:1.5},
+{label:BM||'Benchmark',data:bdd,borderColor:'#ef4444',backgroundColor:'#ef444415',fill:true,pointRadius:0,borderWidth:1}
+]},options:ddOpts});
+
+// Cumulative %
+const pcum=pvals.map(v=>((v/pvals[0])-1)*100);
+const bcum=bvals2.map(v=>v?((v/bvals2[0])-1)*100:0);
+const cumOpts={...chartOpts,scales:{...chartOpts.scales,y:{...chartOpts.scales.y,ticks:{...chartOpts.scales.y.ticks,callback:v=>v.toFixed(0)+'%'}}}};
+new Chart($('#cumChart'),{type:'line',data:{labels,datasets:[
+{label:'Strategy',data:pcum,borderColor:'#a855f7',pointRadius:0,borderWidth:2,fill:false},
+{label:BM||'Benchmark',data:bcum,borderColor:'#f59e0b',borderDash:[4,3],pointRadius:0,borderWidth:1.5,fill:false}
+]},options:cumOpts});
+}
+
+function buildQuarters(){
+const qs=D.quarters||[];const ts=D.trades||[];
+let h=`<div class="sname">📅 Quarter-by-Quarter (${qs.length} quarters)</div>`;
+h+=`<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Quarter</th><th>Value</th><th>Held</th><th>Tiers</th><th>Sold</th><th>Bought</th><th>Sold Detail</th><th>Bought Detail</th></tr></thead><tbody>`;
+
+for(const q of qs){
+const sold=ts.filter(t=>t.date===q.date&&t.action==='SELL');
+const bought=ts.filter(t=>t.date===q.date&&t.action==='BUY');
+const soldStr=sold.length?sold.map(s=>`<span class="sell">${s.ticker}(${s.pnl>0?'+':''}${pn(s.pnl,0)}%)</span>`).join(' '):'<span class="hold">-</span>';
+const boughtStr=bought.length?bought.map(b=>`<span class="buy">${b.ticker}</span>`).join(' '):'<span class="hold">-</span>';
+const tierSpan=(q.tiers||'').split('').map(t=>{
+const c=t==='A'?'var(--green)':t==='B'?'var(--blue)':'var(--amber)';
+return`<span style="color:${c};font-weight:800">${t}</span>`}).join('');
+
+h+=`<tr>
+<td style="font-weight:700">${q.quarter}</td>
+<td style="color:var(--green)">${mc(q.value)}</td>
+<td>${q.holdings}</td>
+<td>${tierSpan}</td>
+<td style="color:${q.sold>0?'var(--red)':'var(--dim)'}">${q.sold}</td>
+<td style="color:${q.bought>0?'var(--green)':'var(--dim)'}">${q.bought}</td>
+<td>${soldStr}</td>
+<td>${boughtStr}</td>
+</tr>`}
+h+=`</tbody></table></div>`;
+$('#p-quarters').innerHTML=h;
+}
+
+function buildHoldings(){
+const fp=D.final_holdings||[];const ss=D.sell_stats||{};
+let h='';
+
+// Sell stats
+if(ss.total){
+h+=`<div class="sname">📊 Sell Performance</div><div class="ss">
+<div class="ssb"><div class="ssb-l">Win Rate</div><div class="ssb-v" style="color:var(--green)">${pn(ss.winners/ss.total*100,0)}%</div></div>
+<div class="ssb"><div class="ssb-l">Avg Win</div><div class="ssb-v" style="color:var(--green)">+${pn(ss.avg_win,1)}%</div></div>
+<div class="ssb"><div class="ssb-l">Avg Loss</div><div class="ssb-v" style="color:var(--red)">${pn(ss.avg_loss,1)}%</div></div>
+<div class="ssb"><div class="ssb-l">Best / Worst</div><div class="ssb-v"><span style="color:var(--green)">+${pn(ss.best,0)}%</span> <span style="color:var(--dim)">/</span> <span style="color:var(--red)">${pn(ss.worst,0)}%</span></div></div>
+</div>`}
+
+// Final holdings
+h+=`<div class="sname">💼 Current Holdings (${fp.length})</div>`;
+const sorted=[...fp].sort((a,b)=>b.return-a.return);
+const maxRet=Math.max(...sorted.map(f=>Math.abs(f.return)),1);
+
+for(const f of sorted){
+const pct=Math.min(Math.abs(f.return)/maxRet*100,100);
+const col=f.return>=0?'var(--green)':'var(--red)';
+const bg=f.return>=0?'#10b981':'#ef4444';
+h+=`<div class="hc">
+<div class="hc-tk">${f.ticker}</div>
+<div class="hc-from">from ${f.from}<br>@ $${pn(f.buy,2)}</div>
+<div class="hc-bar"><div class="hc-fill" style="width:${pct}%;background:${bg}">${f.return>0?'+':''}${pn(f.return,1)}%</div></div>
+<div class="hc-info"><div class="hc-ret" style="color:${col}">${f.return>0?'+':''}${pn(f.return,1)}%</div><div class="hc-pnl">${mc(f.pnl)}</div></div>
+</div>`}
+
+$('#p-holdings').innerHTML=h;
+}
+
+function buildTrades(){
+const ts=D.trades||[];
+let filt='all';
+const render=()=>{
+const filtered=filt==='all'?ts:ts.filter(t=>t.action===filt.toUpperCase());
+let h=`<div class="sname">📋 All Trades (${filtered.length})</div>`;
+h+=`<div class="filt"><div class="fb ${filt==='all'?'active':''}" data-f="all">All (${ts.length})</div><div class="fb ${filt==='buy'?'active':''}" data-f="buy">Buys (${ts.filter(t=>t.action==='BUY').length})</div><div class="fb ${filt==='sell'?'active':''}" data-f="sell">Sells (${ts.filter(t=>t.action==='SELL').length})</div></div>`;
+
+for(const t of filtered){
+const isBuy=t.action==='BUY';
+const pnlStr=isBuy?'':`<span style="color:${t.pnl>=0?'var(--green)':'var(--red)'}">+${pn(t.pnl,1)}%</span>`;
+h+=`<div class="tc ${isBuy?'tc-buy':'tc-sell'}">
+<div class="tc-act" style="color:${isBuy?'var(--green)':'var(--red)'}">${t.action}</div>
+<div class="tc-tk">${t.ticker}</div>
+<div class="tc-dt">${t.date}</div>
+<div class="tc-pr">$${pn(t.price,2)}</div>
+<div class="tc-pnl">${pnlStr}</div>
+<div class="tc-rsn">${t.reason||''}</div>
+</div>`}
+$('#p-trades').innerHTML=h;
+$('#p-trades').querySelectorAll('.fb').forEach(b=>b.addEventListener('click',()=>{filt=b.dataset.f;render()}));
+};render();
+}
+
+function parseFile(text, name){
+if(name.endsWith('.json')){
+try{D=JSON.parse(text);init();return}catch(e){console.error(e)}
+}
+// CSV fallback — try to build minimal data
+try{
+const lines=text.split('\n');const hdr=lines[0].split(',');
+const dateI=hdr.indexOf('date'),pI=hdr.indexOf('portfolio'),bI=hdr.indexOf('benchmark');
+if(dateI>=0&&pI>=0){
+const eq=[];
+for(let i=1;i<lines.length;i++){
+const cols=lines[i].split(',');
+if(cols.length>pI)eq.push({date:cols[dateI],portfolio:+cols[pI],benchmark:bI>=0?+cols[bI]:0});
+}
+const first=eq[0],last=eq[eq.length-1];
+D={
+strategy:'Backtest',period:`${first.date} to ${last.date}`,years:Math.round(eq.length/52*10)/10,capital:Math.round(first.portfolio),
+results:{total_return:Math.round((last.portfolio/first.portfolio-1)*1000)/10,
+spy_return:last.benchmark?Math.round((last.benchmark/first.benchmark-1)*1000)/10:0,
+alpha:0,annualized:0,spy_annualized:0,max_drawdown:0,spy_drawdown:0,sharpe:0,spy_sharpe:0,
+final_value:Math.round(last.portfolio),spy_final:Math.round(last.benchmark||0),total_buys:0,total_sells:0,win_rate:0},
+equity:eq,quarters:[],trades:[],final_holdings:[]};
+D.results.alpha=Math.round((D.results.total_return-D.results.spy_return)*10)/10;
+init();
+}}catch(e){alert('Could not parse file: '+e.message)}
+}
+
+$('#fi').addEventListener('change',e=>{if(!e.target.files[0])return;const r=new FileReader();r.onload=ev=>parseFile(ev.target.result,e.target.files[0].name);r.readAsText(e.target.files[0])});
+const dz=$('#dz');dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--green)'});dz.addEventListener('dragleave',()=>dz.style.borderColor='');
+dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';const f=e.dataTransfer.files[0];const r=new FileReader();r.onload=ev=>parseFile(ev.target.result,f.name);r.readAsText(f)});
+</script>
+
+
+</body></html>
